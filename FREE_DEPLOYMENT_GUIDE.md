@@ -17,8 +17,8 @@ In this setup:
 4. Set the settings:
    - **Name:** `video-editor-backend`
    - **Language / Environment:** `Docker`
-   - **Dockerfile Path:** `./backend/Dockerfile`
-   - **Docker Build Context:** `./backend`
+   - **Dockerfile Path:** `Dockerfile` (or leave default)
+   - **Docker Build Context:** `.` (or leave default)
    - **Instance Type:** `Free`
 5. Click **"Deploy Web Service"**.
 6. Once deployed, copy your backend URL (e.g. `https://video-editor-backend-xxxx.onrender.com`).
