@@ -84,8 +84,15 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
       setStatusMessage('Queued in worker pipeline...');
 
       // 3. Connect to WebSocket for live progress
-      const host = window.location.hostname;
-      const wsUrl = `ws://${host}:8000/ws/renders/${job.id}`;
+      const isHttps = window.location.protocol === 'https:';
+      const wsProtocol = isHttps ? 'wss:' : 'ws:';
+      let wsHost = window.location.host;
+      if (process.env.NEXT_PUBLIC_WS_URL) {
+        wsHost = process.env.NEXT_PUBLIC_WS_URL.replace(/^https?:\/\//, '').replace(/^wss?:\/\//, '');
+      } else if (window.location.port === '3000') {
+        wsHost = `${window.location.hostname}:8000`;
+      }
+      const wsUrl = `${wsProtocol}//${wsHost}/ws/renders/${job.id}`;
       const ws = new WebSocket(wsUrl);
       wsRef.current = ws;
 
