@@ -189,6 +189,20 @@ export const CompositorCanvas: React.FC<CompositorProps> = ({
           ctx.textAlign = txt.alignment || 'center';
           ctx.textBaseline = 'middle';
 
+          // Text Background Box / Pill
+          if (txt.background_color && txt.background_color !== 'transparent') {
+            const metrics = ctx.measureText(txt.content);
+            const padX = (txt.background_padding || 12) + 8;
+            const padY = (txt.background_padding || 8) + 4;
+            const textWidth = metrics.width;
+            const textHeight = txt.font_size;
+            
+            ctx.fillStyle = txt.background_color;
+            ctx.beginPath();
+            ctx.roundRect(-textWidth / 2 - padX, -textHeight / 2 - padY, textWidth + padX * 2, textHeight + padY * 2, 8);
+            ctx.fill();
+          }
+
           // Text Shadow
           if (txt.shadow) {
             ctx.shadowColor = 'rgba(0, 0, 0, 0.8)';

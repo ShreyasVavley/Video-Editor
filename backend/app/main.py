@@ -6,7 +6,7 @@ from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.database import init_db
 from app.services.render_worker import render_worker
-from app.routers import auth, projects, assets, renders, ws
+from app.routers import auth, projects, assets, renders, ws, captions
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -40,6 +40,7 @@ app.include_router(auth.router, prefix=settings.API_PREFIX)
 app.include_router(projects.router, prefix=settings.API_PREFIX)
 app.include_router(assets.router, prefix=settings.API_PREFIX)
 app.include_router(renders.router, prefix=settings.API_PREFIX)
+app.include_router(captions.router, prefix=settings.API_PREFIX)
 app.include_router(ws.router)
 
 # Mount media static directory

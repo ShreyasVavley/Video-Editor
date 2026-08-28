@@ -7,6 +7,7 @@ import { Project, Asset } from '@/types/timeline';
 import { CompositorCanvas } from '@/components/compositor/CompositorCanvas';
 import { Timeline } from '@/components/timeline/Timeline';
 import { MediaLibrary } from '@/components/media/MediaLibrary';
+import { CaptionsStudio } from '@/components/captions/CaptionsStudio';
 import { ClipInspector } from '@/components/inspector/ClipInspector';
 import { ExportModal } from '@/components/export/ExportModal';
 import {
@@ -18,6 +19,8 @@ import {
   CheckCircle2,
   Loader2,
   HardDrive,
+  Type,
+  Folder,
 } from 'lucide-react';
 
 interface EditorPageProps {
@@ -33,6 +36,7 @@ export default function EditorPage({ params }: EditorPageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<'16:9' | '9:16' | '1:1' | '21:9'>('16:9');
+  const [activeLeftTab, setActiveLeftTab] = useState<'media' | 'captions'>('media');
 
   const fetchProjectAndAssets = async () => {
     try {
@@ -152,14 +156,49 @@ export default function EditorPage({ params }: EditorPageProps) {
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Upper Half: Media Library (Left) + Compositor Viewport (Center) + Inspector (Right) */}
         <div className="flex-1 flex overflow-hidden min-h-[300px]">
-          {/* Left Panel: Media Assets */}
-          <div className="w-72 shrink-0 h-full">
-            <MediaLibrary
-              projectId={projectId}
-              assets={assets}
-              onUploadSuccess={fetchProjectAndAssets}
-              onDeleteAsset={handleDeleteAsset}
-            />
+          {/* Left Panel: Media Assets & Captions Studio */}
+          <div className="w-80 shrink-0 h-full flex flex-col border-r border-surface-border">
+            {/* Tab Bar */}
+            <div className="h-10 bg-surface border-b border-surface-border flex items-center px-2 gap-1 shrink-0">
+              <button
+                onClick={() => setActiveLeftTab('media')}
+                className={`flex-1 py-1.5 rounded-md font-semibold text-xs flex items-center justify-center gap-1.5 transition-all ${
+                  activeLeftTab === 'media'
+                    ? 'bg-surface-raised text-brand-400 border border-surface-border shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Folder className="w-3.5 h-3.5" />
+                <span>Media</span>
+              </button>
+
+              <button
+                onClick={() => setActiveLeftTab('captions')}
+                className={`flex-1 py-1.5 rounded-md font-semibold text-xs flex items-center justify-center gap-1.5 transition-all ${
+                  activeLeftTab === 'captions'
+                    ? 'bg-amber-500/10 text-amber-300 border border-amber-500/30 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Type className="w-3.5 h-3.5 text-amber-400" />
+                <span>Captions</span>
+                <span className="px-1 py-0.2 rounded bg-amber-500/20 text-[9px] text-amber-300 font-mono">AI</span>
+              </button>
+            </div>
+
+            {/* Tab Content */}
+            <div className="flex-1 overflow-hidden">
+              {activeLeftTab === 'media' ? (
+                <MediaLibrary
+                  projectId={projectId}
+                  assets={assets}
+                  onUploadSuccess={fetchProjectAndAssets}
+                  onDeleteAsset={handleDeleteAsset}
+                />
+              ) : (
+                <CaptionsStudio assets={assets} />
+              )}
+            </div>
           </div>
 
           {/* Center Viewport: Canvas Compositor */}
