@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # Relational Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: video_editor_postgres
+    environment:
+      POSTGRES_USER: editor_user
+      POSTGRES_PASSWORD: editor_password
+      POSTGRES_DB: video_editor
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U editor_user -d video_editor"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # In-Memory Cache & Message Broker
+  redis:
+    image: redis:7-alpine
+    container_name: video_editor_redis
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+
+  # Backend API & Media Processing Core
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: video_editor_backend
+    environment:
+      DATABASE_URL: postgresql+asyncpg://editor_user:editor_password@postgres:5432/video_editor
+      REDIS_URL: redis://redis:6379/0
+      SECRET_KEY: 09d25e094faa6ca2556c818166b7a9563b93f7099f6f0f4caa6cf63b88e8d3e7
+    volumes:
+      - media_storage:/app/media
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    restart: unless-stopped
+
+  # Frontend NLE Interface
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: video_editor_frontend
+    environment:
+      NODE_ENV: production
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  media_storage:
