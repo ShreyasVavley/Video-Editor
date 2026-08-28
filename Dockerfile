@@ -10,13 +10,21 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install Python requirements
-COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Universally copy files whether Docker context is root (.) or ./backend
+COPY . /tmp/build/
+RUN if [ -d /tmp/build/backend/app ]; then \
+        cp /tmp/build/backend/requirements.txt ./ && \
+        cp -r /tmp/build/backend/app ./ && \
+        cp -r /tmp/build/backend/assets ./; \
+    else \
+        cp /tmp/build/requirements.txt ./ && \
+        cp -r /tmp/build/app ./ && \
+        cp -r /tmp/build/assets ./; \
+    fi && \
+    rm -rf /tmp/build
 
-# Copy application source & assets
-COPY backend/app/ ./app/
-COPY backend/assets/ ./assets/
+# Install Python requirements
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Prepare persistent media storage directories
 RUN mkdir -p media/uploads media/proxies media/exports
