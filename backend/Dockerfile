@@ -32,5 +32,5 @@ RUN mkdir -p media/uploads media/proxies media/exports
 ENV PORT=8000
 EXPOSE 8000 10000
 
-# Bind dynamically to $PORT (Render/Cloud) or default 8000 (Docker) with 2 workers for 512MB free tier
-CMD ["sh", "-c", "gunicorn app.main:app -w 2 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:${PORT:-8000} --timeout 120"]
+# Run Uvicorn directly on dynamic $PORT (Render sets PORT=10000)
+CMD ["sh", "-c", "python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}"]

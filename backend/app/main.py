@@ -26,10 +26,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 
-# Enable CORS for local Next.js frontend
+# Enable CORS for frontend and cloud deployments
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"], # Allow local frontend development
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -46,6 +46,8 @@ app.include_router(ws.router)
 # Mount media static directory
 app.mount("/media", StaticFiles(directory=settings.MEDIA_DIR), name="media")
 
+@app.get("/")
+@app.get("/health")
 @app.get("/api/health")
 async def health_check():
     return {
