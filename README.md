@@ -178,3 +178,11 @@ CREATE TABLE render_jobs (
     completed_at TIMESTAMP WITH TIME ZONE
 );
 ```
+
+---
+
+## 🤝 Authors & Contributors
+
+- **[Shreyas Vavley](https://github.com/ShreyasVavley)** - Architecture, NLE Timeline Engine & Full-Stack Platform
+- **[Shreyas BR](https://github.com/ShreyasBR21)** - Multimedia Engineering, Captions System & Optimization
+
