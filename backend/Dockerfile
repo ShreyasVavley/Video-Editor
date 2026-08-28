@@ -21,7 +21,8 @@ COPY assets/ ./assets/
 # Prepare persistent media storage directories
 RUN mkdir -p media/uploads media/proxies media/exports
 
-EXPOSE 8000
+ENV PORT=8000
+EXPOSE 8000 10000
 
-# Run with Gunicorn + Uvicorn worker class for production throughput
-CMD ["gunicorn", "app.main:app", "-w", "4", "-k", "uvicorn.workers.UvicornWorker", "-b", "0.0.0.0:8000", "--timeout", "120"]
+# Bind dynamically to $PORT (Render/Cloud) or default 8000 (Docker) with 2 workers for 512MB free tier
+CMD ["sh", "-c", "gunicorn app.main:app -w 2 -k uvicorn.workers.UvicornWorker -b 0.0.0.0:${PORT:-8000} --timeout 120"]
