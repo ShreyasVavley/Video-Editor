@@ -345,6 +345,58 @@ export const ClipInspector: React.FC = () => {
                 />
               </div>
             </div>
+
+            {/* Animations */}
+            <div className="pt-4 border-t border-surface-border space-y-3">
+              <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+                Text Animation
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-[10px] text-slate-500 font-mono">Style</span>
+                  <select
+                    value={selectedClip.text.animation_style || 'none'}
+                    onChange={(e) =>
+                      updateClip(selectedClip.id, {
+                        text: { 
+                          ...selectedClip.text!, 
+                          animation_style: e.target.value as any,
+                          animation_duration: selectedClip.text?.animation_duration || 1.0
+                        },
+                      })
+                    }
+                    className="w-full mt-1 bg-surface-raised border border-surface-border rounded p-1.5 text-slate-200 text-[11px] focus:outline-none focus:border-brand-500"
+                  >
+                    <option value="none">None</option>
+                    <option value="typewriter">Typewriter</option>
+                    <option value="slide_up">Slide Up</option>
+                    <option value="slide_down">Slide Down</option>
+                  </select>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 font-mono">Duration (s)</span>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    max="10"
+                    value={selectedClip.text.animation_duration || 1.0}
+                    onChange={(e) =>
+                      updateClip(selectedClip.id, {
+                        text: { 
+                          ...selectedClip.text!, 
+                          animation_style: selectedClip.text?.animation_style || 'typewriter',
+                          animation_duration: parseFloat(e.target.value) || 1.0 
+                        },
+                      })
+                    }
+                    disabled={!selectedClip.text.animation_style || selectedClip.text.animation_style === 'none'}
+                    className="w-full mt-1 bg-surface-raised border border-surface-border rounded p-1.5 text-slate-200 text-[11px] focus:outline-none focus:border-brand-500 disabled:opacity-50"
+                  />
+                </div>
+              </div>
+            </div>
           </div>
         )}
 

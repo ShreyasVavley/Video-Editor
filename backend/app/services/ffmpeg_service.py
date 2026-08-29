@@ -262,20 +262,49 @@ class FFmpegService:
                 elif txt.alignment == "right":
                     x_pos = f"w-text_w-50 + {int(clip.transform.x * target_width)}"
 
-                next_canvas = f"[canvas_v{layer_idx}]"
-                draw_filter = (
-                    f"{current_canvas}drawtext="
-                    f"fontfile='{font_path_escaped}':"
-                    f"text='{text_content}':"
-                    f"fontsize={font_size}:"
-                    f"fontcolor={font_color}:"
-                    f"x={x_pos}:y={y_pos}:"
-                    f"enable='between(t,{start_t:.3f},{end_t:.3f})'"
-                    f"{next_canvas}"
-                )
-                filter_chains.append(draw_filter)
-                current_canvas = next_canvas
-                layer_idx += 1
+                anim_style = getattr(txt, 'animation_style', 'none')
+                anim_dur = getattr(txt, 'animation_duration', 1.0)
+
+                # Animating Y position for slides
+                if anim_style == 'slide_up':
+                    y_pos = f"({y_pos}) + max(0, 1 - (t-{start_t:.3f})/{anim_dur:.3f}) * {int(target_height * 0.2)}"
+                elif anim_style == 'slide_down':
+                    y_pos = f"({y_pos}) - max(0, 1 - (t-{start_t:.3f})/{anim_dur:.3f}) * {int(target_height * 0.2)}"
+
+                if anim_style == 'typewriter':
+                    # Typewriter uses a transparent color source -> drawtext -> width-animated crop mask -> overlay
+                    text_layer = f"[text_layer_{layer_idx}]"
+                    draw_filter = (
+                        f"color=c=black@0:s={target_width}x{target_height}:r={target_fps}:d={total_duration}[col_{layer_idx}]; "
+                        f"[col_{layer_idx}]format=rgba,"
+                        f"drawtext=fontfile='{font_path_escaped}':text='{text_content}':fontsize={font_size}:fontcolor={font_color}:"
+                        f"x={x_pos}:y={y_pos}:enable='between(t,{start_t:.3f},{end_t:.3f})',"
+                        f"crop=w='iw*min(1, max(0, (t-{start_t:.3f})/{anim_dur:.3f}))':h='ih':x=0:y=0"
+                        f"{text_layer}"
+                    )
+                    filter_chains.append(draw_filter)
+                    
+                    next_canvas = f"[canvas_v{layer_idx}]"
+                    overlay_filter = f"{current_canvas}{text_layer}overlay=x=0:y=0:enable='between(t,{start_t:.3f},{end_t:.3f})'{next_canvas}"
+                    filter_chains.append(overlay_filter)
+                    
+                    current_canvas = next_canvas
+                    layer_idx += 1
+                else:
+                    next_canvas = f"[canvas_v{layer_idx}]"
+                    draw_filter = (
+                        f"{current_canvas}drawtext="
+                        f"fontfile='{font_path_escaped}':"
+                        f"text='{text_content}':"
+                        f"fontsize={font_size}:"
+                        f"fontcolor={font_color}:"
+                        f"x={x_pos}:y={y_pos}:"
+                        f"enable='between(t,{start_t:.3f},{end_t:.3f})'"
+                        f"{next_canvas}"
+                    )
+                    filter_chains.append(draw_filter)
+                    current_canvas = next_canvas
+                    layer_idx += 1
                 continue
 
             # --- Video / Image Clip ---

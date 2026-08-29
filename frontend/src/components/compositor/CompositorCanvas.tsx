@@ -123,7 +123,24 @@ export const CompositorCanvas: React.FC<CompositorProps> = ({
         const centerX = targetWidth / 2 + clip.transform.x * targetWidth;
         const centerY = targetHeight / 2 + clip.transform.y * targetHeight;
 
-        ctx.translate(centerX, centerY);
+        let extraY = 0;
+        let displayContent = clip.text?.content || '';
+
+        if (clip.type === 'text' && clip.text && clip.text.animation_style && clip.text.animation_style !== 'none') {
+          const animDur = clip.text.animation_duration || 1.0;
+          const animProgress = Math.min(1, Math.max(0, clipOffset / animDur));
+          
+          if (clip.text.animation_style === 'typewriter') {
+            const charCount = Math.floor(animProgress * displayContent.length);
+            displayContent = displayContent.substring(0, charCount);
+          } else if (clip.text.animation_style === 'slide_up') {
+            extraY = (1 - animProgress) * (targetHeight * 0.2);
+          } else if (clip.text.animation_style === 'slide_down') {
+            extraY = -(1 - animProgress) * (targetHeight * 0.2);
+          }
+        }
+
+        ctx.translate(centerX, centerY + extraY);
         if (clip.transform.rotation !== 0) {
           ctx.rotate((clip.transform.rotation * Math.PI) / 180);
         }
@@ -210,8 +227,8 @@ export const CompositorCanvas: React.FC<CompositorProps> = ({
           ctx.textBaseline = 'middle';
 
           // Text Background Box / Pill
-          if (txt.background_color && txt.background_color !== 'transparent') {
-            const metrics = ctx.measureText(txt.content);
+          if (txt.background_color && txt.background_color !== 'transparent' && displayContent.length > 0) {
+            const metrics = ctx.measureText(displayContent);
             const padX = (txt.background_padding || 12) + 8;
             const padY = (txt.background_padding || 8) + 4;
             const textWidth = metrics.width;
@@ -232,15 +249,17 @@ export const CompositorCanvas: React.FC<CompositorProps> = ({
           }
 
           // Text Outline
-          if (txt.outline_width > 0) {
+          if (txt.outline_width > 0 && displayContent.length > 0) {
             ctx.strokeStyle = txt.outline_color || '#000000';
             ctx.lineWidth = txt.outline_width * 2;
-            ctx.strokeText(txt.content, 0, 0);
+            ctx.strokeText(displayContent, 0, 0);
           }
 
           // Text Fill
-          ctx.fillStyle = txt.font_color || '#FFFFFF';
-          ctx.fillText(txt.content, 0, 0);
+          if (displayContent.length > 0) {
+            ctx.fillStyle = txt.font_color || '#FFFFFF';
+            ctx.fillText(displayContent, 0, 0);
+          }
         }
 
         ctx.restore();

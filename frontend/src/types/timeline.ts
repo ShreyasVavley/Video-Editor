@@ -51,6 +51,8 @@ export interface TextConfig {
   outline_color: string;
   outline_width: number;
   shadow: boolean;
+  animation_style?: 'none' | 'typewriter' | 'slide_up' | 'slide_down';
+  animation_duration?: number;
 }
 
 export interface AudioConfig {
