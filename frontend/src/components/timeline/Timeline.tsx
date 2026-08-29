@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { useTimelineStore } from '@/store/timelineStore';
 import { TimelineToolbar } from '@/components/timeline/TimelineToolbar';
 import { TimelineRuler } from '@/components/timeline/TimelineRuler';
