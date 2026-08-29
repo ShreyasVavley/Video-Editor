@@ -1,4 +1,3 @@
-import { getApiUrl } from "@/utils/config";
 'use client';
 
 import React, { useState } from 'react';
@@ -115,7 +114,7 @@ export const CaptionsStudio: React.FC<CaptionsStudioProps> = ({ assets, onSeekPl
     setIsTranscribing(true);
 
     try {
-      const res = await fetch(getApiUrl('/api/captions/transcribe')), {
+      const res = await fetch('/api/captions/transcribe', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -143,7 +142,7 @@ export const CaptionsStudio: React.FC<CaptionsStudioProps> = ({ assets, onSeekPl
     formData.append('file', file);
 
     try {
-      const res = await fetch(getApiUrl('/api/captions/parse-file')), {
+      const res = await fetch('/api/captions/parse-file', {
         method: 'POST',
         body: formData,
       });
@@ -161,7 +160,7 @@ export const CaptionsStudio: React.FC<CaptionsStudioProps> = ({ assets, onSeekPl
   // --- Export SRT File ---
   const handleExportSRT = async () => {
     try {
-      const res = await fetch(getApiUrl('/api/captions/export-file')), {
+      const res = await fetch('/api/captions/export-file', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ segments: captions }),
@@ -189,7 +188,7 @@ export const CaptionsStudio: React.FC<CaptionsStudioProps> = ({ assets, onSeekPl
     if (!ttsText.trim()) return;
     setIsGeneratingTTS(true);
     try {
-      const res = await fetch(getApiUrl('/api/assets/tts')), {
+      const res = await fetch('/api/assets/tts', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,4 +1,3 @@
-import { getApiUrl } from "@/utils/config";
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -64,7 +63,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
 
     try {
       // 2. Post Render Job
-      const res = await fetch(getApiUrl('/api/renders')), {
+      const res = await fetch('/api/renders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

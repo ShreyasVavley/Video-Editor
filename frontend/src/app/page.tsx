@@ -1,4 +1,3 @@
-import { getApiUrl } from "@/utils/config";
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -19,7 +18,6 @@ import {
   X,
   ChevronRight,
   Star,
-  Download,
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -33,12 +31,12 @@ export default function DashboardPage() {
 
   const fetchProjects = async () => {
     try {
-      const authRes = await fetch(getApiUrl('/api/auth/guest')), { method: 'POST' });
+      const authRes = await fetch('/api/auth/guest', { method: 'POST' });
       if (authRes.ok) {
         const authData = await authRes.json();
         localStorage.setItem('auth_token', authData.access_token);
       }
-      const res = await fetch(getApiUrl('/api/projects')));
+      const res = await fetch('/api/projects');
       if (res.ok) {
         const data = await res.json();
         setProjects(data.projects || []);
@@ -52,7 +50,7 @@ export default function DashboardPage() {
 
   const fetchHealth = async () => {
     try {
-      const res = await fetch(getApiUrl('/api/health')));
+      const res = await fetch('/api/health');
       if (res.ok) setSystemHealth(await res.json());
     } catch (e) {}
   };
@@ -68,7 +66,7 @@ export default function DashboardPage() {
     if (newAspect === '9:16') { width = 1080; height = 1920; }
     else if (newAspect === '1:1') { width = 1080; height = 1080; }
     try {
-      const res = await fetch(getApiUrl('/api/projects')), {
+      const res = await fetch('/api/projects', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: newTitle || 'Untitled Project', width, height, fps: 30, duration_seconds: 30.0 }),
@@ -84,7 +82,7 @@ export default function DashboardPage() {
     e.stopPropagation();
     if (!confirm('Delete this project?')) return;
     try {
-      await fetch(getApiUrl(`/api/projects/${id}`)), { method: 'DELETE' });
+      await fetch(`/api/projects/${id}`, { method: 'DELETE' });
       setProjects((prev) => prev.filter((p) => p.id !== id));
     } catch (e) { console.error('Failed to delete:', e); }
   };
@@ -92,7 +90,7 @@ export default function DashboardPage() {
   const handleDuplicateProject = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      const res = await fetch(getApiUrl(`/api/projects/${id}/duplicate`)), { method: 'POST' });
+      const res = await fetch(`/api/projects/${id}/duplicate`, { method: 'POST' });
       if (res.ok) fetchProjects();
     } catch (e) { console.error('Failed to duplicate:', e); }
   };
@@ -151,21 +149,9 @@ export default function DashboardPage() {
                 Create Something<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6eb0] to-[#9b6dff]">Extraordinary</span>
               </h2>
-              <p className="text-sm text-slate-400 mt-3 max-w-md leading-relaxed mb-5">
+              <p className="text-sm text-slate-400 mt-3 max-w-md leading-relaxed">
                 Multi-track NLE with FFmpeg rendering, AI captions, audio waveforms, keyframe animation, and real-time export.
               </p>
-              <div className="flex items-center gap-4">
-                <a 
-                  href="https://github.com/ShreyasVavley/Video-Editor/releases/latest"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 px-6 py-3 text-sm font-black rounded-2xl clay-btn clay-btn-primary text-white"
-                >
-                  <Download className="w-5 h-5" />
-                  Download for Windows
-                </a>
-                <span className="text-xs text-slate-500 font-mono">v1.0.0 • Offline App</span>
-              </div>
             </div>
             <div className="hidden lg:flex gap-4">
               {[

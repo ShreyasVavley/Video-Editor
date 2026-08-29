@@ -1,4 +1,3 @@
-import { getApiUrl } from "@/utils/config";
 'use client';
 
 import React, { useState } from 'react';
@@ -47,7 +46,7 @@ export const StickersLibrary: React.FC = () => {
     setDownloadingUrl(sticker.url);
     try {
       // Send to backend to download and transcode to WebM with Alpha
-      const res = await fetch(getApiUrl('/api/assets/download')), {
+      const res = await fetch('/api/assets/download', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
