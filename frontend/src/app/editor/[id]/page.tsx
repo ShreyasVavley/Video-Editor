@@ -103,18 +103,18 @@ export default function EditorPage({ params }: EditorPageProps) {
   return (
     <div className="flex flex-col h-screen overflow-hidden text-slate-200 clay-bg select-none font-sans relative z-0">
       {/* Top Header Navigation */}
-      <header className="h-16 glass-panel border-b border-white/10 flex items-center justify-between px-6 z-50 shrink-0 mx-4 mt-4 shadow-2xl">
+      <header className="h-16 clay-card flex items-center justify-between px-6 z-50 shrink-0 mx-4 mt-4">
         <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="p-2 hover:bg-white/10 rounded-full transition-all hover:scale-110 active:scale-95 group">
+          <Link href="/dashboard" className="p-2 hover:bg-white/10 rounded-2xl transition-all hover:scale-110 active:scale-95 group">
             <ChevronLeft className="w-5 h-5 text-slate-300 group-hover:text-white" />
           </Link>
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#ff007a] to-[#7928ca] flex items-center justify-center shadow-[0_0_15px_rgba(255,0,122,0.6)] border border-white/20 hover:rotate-12 transition-transform duration-300 cursor-pointer">
+            <div className="w-9 h-9 rounded-2xl bg-gradient-to-br from-[#ff6eb0] to-[#9b6dff] flex items-center justify-center clay-btn clay-btn-primary hover:rotate-12 cursor-pointer">
               <Film className="w-4 h-4 text-white drop-shadow-md" />
             </div>
             <div className="flex flex-col justify-center">
-              <h1 className="font-bold text-[15px] text-white tracking-wide neon-text">{project?.title || 'Loading...'}</h1>
-              <p className="text-[10px] text-[#ffb6ff] font-mono mt-[2px] tracking-wider font-bold opacity-90">
+              <h1 className="font-black text-[15px] text-white tracking-wide neon-text">{project?.title || 'Loading...'}</h1>
+              <p className="text-[10px] text-[#c8a8ff] font-mono mt-[2px] tracking-wider font-bold opacity-90">
                 {aspectRatio} <span className="opacity-50 mx-1">•</span> {project?.fps}fps
               </p>
             </div>
@@ -124,30 +124,30 @@ export default function EditorPage({ params }: EditorPageProps) {
         <div className="flex items-center gap-4">
           <VUMeter isPlaying={isPlaying} />
           
-          <div className="flex items-center gap-2 text-[11px] text-slate-300 font-mono bg-black/40 px-4 py-2 rounded-xl border border-white/10 shadow-inner backdrop-blur-md">
+          <div className="flex items-center gap-2 text-[11px] text-slate-300 font-mono bg-black/30 px-4 py-2 rounded-2xl clay-pill backdrop-blur-md">
             {isSaving ? (
-              <><Loader2 className="w-3.5 h-3.5 animate-spin text-[#ff007a]" /> Saving...</>
+              <><Loader2 className="w-3.5 h-3.5 animate-spin text-[#ff6eb0]" /> Saving...</>
             ) : (
-              <><CheckCircle2 className="w-3.5 h-3.5 text-[#00e5ff]" /> {lastSavedAt ? `Saved at ${lastSavedAt}` : 'Saved'}</>
+              <><CheckCircle2 className="w-3.5 h-3.5 text-[#4dffc3]" /> {lastSavedAt ? `Saved at ${lastSavedAt}` : 'Saved'}</>
             )}
           </div>
           <button
             onClick={() => setIsShortcutsOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-white/5 hover:bg-white/10 text-white/80 transition-colors border border-white/5"
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-black rounded-2xl clay-btn clay-btn-ghost text-white/80"
             title="Keyboard Shortcuts"
           >
-            <Keyboard className="w-4 h-4 text-[#00e5ff]" />
+            <Keyboard className="w-4 h-4 text-[#5de8ff]" />
           </button>
           <button
             onClick={() => saveTimeline()}
-            className="flex items-center gap-1.5 px-5 py-2 text-xs font-bold rounded-xl aesthetic-button text-white/90"
+            className="flex items-center gap-1.5 px-5 py-2 text-xs font-black rounded-2xl clay-btn clay-btn-ghost text-white"
           >
             <Save className="w-4 h-4 opacity-90" />
             Save
           </button>
           <button
             onClick={() => setIsExportOpen(true)}
-            className="flex items-center gap-2 px-6 py-2 text-xs rounded-xl aesthetic-button-primary text-white"
+            className="flex items-center gap-2 px-6 py-2 text-xs rounded-2xl clay-btn clay-btn-primary text-white font-black"
           >
             <Download className="w-4 h-4" />
             Export

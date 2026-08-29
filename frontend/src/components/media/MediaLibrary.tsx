@@ -94,13 +94,13 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ({
   };
 
   return (
-    <div className="flex flex-col h-full bg-surface border-r border-surface-border select-none text-xs">
+    <div className="flex flex-col h-full select-none text-xs">
       {/* Top Header */}
-      <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-surface-border bg-surface-raised">
+      <div className="flex items-center justify-between px-3.5 py-2.5 border-b border-white/5 bg-black/20 backdrop-blur-md">
         <div className="flex items-center gap-2">
-          <Film className="w-4 h-4 text-brand-500" />
-          <span className="font-semibold text-slate-100">Media Assets</span>
-          <span className="text-[10px] bg-surface px-1.5 py-0.5 rounded text-slate-400 font-mono">
+          <Film className="w-4 h-4 text-[#ff6eb0]" />
+          <span className="font-black text-slate-100 uppercase tracking-wider text-[10px]">Media Assets</span>
+          <span className="text-[10px] clay-pill px-1.5 py-0.5 rounded text-slate-400 font-mono bg-black/40">
             {assets.length}
           </span>
         </div>
