@@ -14,6 +14,7 @@ import {
   Sparkles,
   Palette,
   Clock,
+  Video,
 } from 'lucide-react';
 
 export const ClipInspector: React.FC = () => {
