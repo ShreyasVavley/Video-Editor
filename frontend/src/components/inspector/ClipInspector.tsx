@@ -25,30 +25,33 @@ export const ClipInspector: React.FC = () => {
 
   if (!selectedClip) {
     return (
-      <div className="flex flex-col h-full bg-surface border-l border-surface-border p-4 select-none text-xs text-slate-400">
-        <div className="flex items-center gap-2 text-slate-200 font-semibold mb-4">
-          <Sliders className="w-4 h-4 text-brand-500" />
-          Project Properties
+      <div className="flex flex-col h-full p-4 select-none text-xs text-slate-400">
+        <div className="flex items-center gap-2 text-white font-black mb-4 pb-3 border-b border-white/5">
+          <div className="w-6 h-6 rounded-md bg-gradient-to-br from-[#ff007a] to-[#7928ca] flex items-center justify-center">
+            <Sliders className="w-3.5 h-3.5 text-white" />
+          </div>
+          <span className="text-sm">Inspector</span>
         </div>
-        <div className="space-y-3 bg-surface-raised p-3 rounded-md border border-surface-border">
-          <div>
-            <span className="text-[10px] text-slate-500 uppercase font-mono">Canvas Resolution</span>
-            <p className="text-slate-200 font-semibold mt-0.5">
-              {timeline.width} x {timeline.height}
-            </p>
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-500 uppercase font-mono">Framerate</span>
-            <p className="text-slate-200 font-semibold mt-0.5">{timeline.fps} FPS</p>
-          </div>
-          <div>
-            <span className="text-[10px] text-slate-500 uppercase font-mono">Total Duration</span>
-            <p className="text-slate-200 font-semibold mt-0.5">{timeline.duration_seconds.toFixed(1)}s</p>
-          </div>
+        <div className="space-y-3 bg-black/30 p-3 rounded-xl border border-white/5">
+          {[
+            { label: 'Resolution', value: `${timeline.width} × ${timeline.height}` },
+            { label: 'Framerate', value: `${timeline.fps} FPS` },
+            { label: 'Duration', value: `${timeline.duration_seconds.toFixed(1)}s` },
+          ].map(({ label, value }) => (
+            <div key={label} className="flex items-center justify-between">
+              <span className="text-[10px] text-slate-500 uppercase font-mono">{label}</span>
+              <span className="text-white font-bold font-mono text-[11px]">{value}</span>
+            </div>
+          ))}
         </div>
-        <p className="text-[11px] text-slate-500 mt-6 text-center">
-          Select a clip on the timeline to edit its transforms, filters, and audio properties.
-        </p>
+        <div className="flex-1 flex flex-col items-center justify-center gap-3 text-center mt-6">
+          <div className="w-12 h-12 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center">
+            <Video className="w-6 h-6 text-slate-600" />
+          </div>
+          <p className="text-[11px] text-slate-500 max-w-[160px] leading-relaxed">
+            Select a clip on the timeline to edit its properties
+          </p>
+        </div>
       </div>
     );
   }
@@ -56,67 +59,75 @@ export const ClipInspector: React.FC = () => {
   const isText = selectedClip.type === 'text';
 
   return (
-    <div className="flex flex-col h-full bg-surface border-l border-surface-border select-none text-xs">
+    <div className="flex flex-col h-full select-none text-xs overflow-hidden">
       {/* Header */}
-      <div className="px-4 py-3 bg-surface-raised border-b border-surface-border flex items-center justify-between">
-        <div className="overflow-hidden pr-2">
-          <span className="text-[10px] uppercase font-mono text-brand-400">
+      <div className="px-4 py-3 border-b border-white/5 flex items-center gap-3">
+        <div className={`w-7 h-7 rounded-lg flex items-center justify-center shadow-md ${
+          selectedClip.type === 'video' ? 'bg-gradient-to-br from-blue-500 to-cyan-500' :
+          selectedClip.type === 'audio' ? 'bg-gradient-to-br from-emerald-500 to-teal-500' :
+          selectedClip.type === 'text'  ? 'bg-gradient-to-br from-amber-500 to-orange-500' :
+          'bg-gradient-to-br from-[#ff007a] to-[#7928ca]'
+        }`}>
+          <Sliders className="w-3.5 h-3.5 text-white" />
+        </div>
+        <div className="overflow-hidden">
+          <span className="text-[9px] uppercase font-black font-mono text-[#ffb6ff] tracking-widest">
             {selectedClip.type} Clip
           </span>
-          <h3 className="font-semibold text-slate-100 truncate">{selectedClip.name}</h3>
+          <h3 className="font-bold text-white truncate text-[13px] leading-tight">{selectedClip.name}</h3>
         </div>
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-surface-border bg-surface text-slate-400 overflow-x-auto custom-scrollbar">
+      <div className="flex border-b border-white/5 text-slate-400 overflow-x-auto bg-black/20">
         <button
           onClick={() => setActiveTab('transform')}
-          className={`flex-1 py-2 px-2 flex items-center justify-center gap-1 font-medium transition-colors ${
+          className={`flex-1 py-2.5 px-2 flex items-center justify-center gap-1 font-bold transition-all text-[10px] uppercase tracking-wider ${
             activeTab === 'transform'
-              ? 'text-brand-400 border-b-2 border-brand-500 bg-surface-raised'
-              : 'hover:text-slate-200'
+              ? 'text-white bg-white/5 border-b-2 border-[#ff007a]'
+              : 'hover:text-slate-200 hover:bg-white/5'
           }`}
         >
-          <Move className="w-3.5 h-3.5 shrink-0" />
+          <Move className="w-3 h-3 shrink-0" />
           Transform
         </button>
 
         {isText && (
           <button
             onClick={() => setActiveTab('text')}
-            className={`flex-1 py-2 px-2 flex items-center justify-center gap-1 font-medium transition-colors ${
+            className={`flex-1 py-2.5 px-2 flex items-center justify-center gap-1 font-bold transition-all text-[10px] uppercase tracking-wider ${
               activeTab === 'text'
-                ? 'text-brand-400 border-b-2 border-brand-500 bg-surface-raised'
-                : 'hover:text-slate-200'
+                ? 'text-white bg-white/5 border-b-2 border-[#ff007a]'
+                : 'hover:text-slate-200 hover:bg-white/5'
             }`}
           >
-            <Type className="w-3.5 h-3.5 shrink-0" />
+            <Type className="w-3 h-3 shrink-0" />
             Text
           </button>
         )}
 
         <button
           onClick={() => setActiveTab('filters')}
-          className={`flex-1 py-2 px-2 flex items-center justify-center gap-1 font-medium transition-colors ${
+          className={`flex-1 py-2.5 px-2 flex items-center justify-center gap-1 font-bold transition-all text-[10px] uppercase tracking-wider ${
             activeTab === 'filters'
-              ? 'text-brand-400 border-b-2 border-brand-500 bg-surface-raised'
-              : 'hover:text-slate-200'
+              ? 'text-white bg-white/5 border-b-2 border-[#ff007a]'
+              : 'hover:text-slate-200 hover:bg-white/5'
           }`}
         >
-          <Palette className="w-3.5 h-3.5 shrink-0" />
+          <Palette className="w-3 h-3 shrink-0" />
           Filters
         </button>
 
         <button
           onClick={() => setActiveTab('transitions')}
-          className={`flex-1 py-2 px-2 flex items-center justify-center gap-1 font-medium transition-colors ${
+          className={`flex-1 py-2.5 px-2 flex items-center justify-center gap-1 font-bold transition-all text-[10px] uppercase tracking-wider ${
             activeTab === 'transitions'
-              ? 'text-brand-400 border-b-2 border-brand-500 bg-surface-raised'
-              : 'hover:text-slate-200'
+              ? 'text-white bg-white/5 border-b-2 border-[#ff007a]'
+              : 'hover:text-slate-200 hover:bg-white/5'
           }`}
         >
-          <Sparkles className="w-3.5 h-3.5 shrink-0" />
-          Transitions
+          <Sparkles className="w-3 h-3 shrink-0" />
+          FX
         </button>
 
         {selectedClip.type !== 'text' && (
