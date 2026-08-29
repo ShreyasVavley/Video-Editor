@@ -11,6 +11,8 @@ import { CaptionsStudio } from '@/components/captions/CaptionsStudio';
 import { StickersLibrary } from '@/components/stickers/StickersLibrary';
 import { ClipInspector } from '@/components/inspector/ClipInspector';
 import { ExportModal } from '@/components/export/ExportModal';
+import { ShortcutsOverlay } from '@/components/ui/ShortcutsOverlay';
+import { VUMeter } from '@/components/ui/VUMeter';
 import {
   ChevronLeft,
   Save,
@@ -23,6 +25,7 @@ import {
   Type,
   Folder,
   Smile,
+  Keyboard,
 } from 'lucide-react';
 
 interface EditorPageProps {
@@ -33,10 +36,13 @@ export default function EditorPage({ params }: EditorPageProps) {
   const resolvedParams = use(params);
   const projectId = resolvedParams.id;
 
-  const { project, setProject, saveTimeline, isSaving, lastSavedAt } = useTimelineStore();
+  const { project, setProject, saveTimeline, isSaving, lastSavedAt, isPlaying } = useTimelineStore();
   const [assets, setAssets] = useState<Asset[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isExportOpen, setIsExportOpen] = useState(false);
+  const [isShortcutsOpen, setIsShortcutsOpen] = useState(false);
+  const [timelineHeight, setTimelineHeight] = useState(288);
+  const [isDragging, setIsDragging] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<'16:9' | '9:16' | '1:1' | '21:9'>('16:9');
   const [activeLeftTab, setActiveLeftTab] = useState<'media' | 'captions' | 'stickers'>('media');
 
@@ -111,6 +117,8 @@ export default function EditorPage({ params }: EditorPageProps) {
         </div>
 
         <div className="flex items-center gap-4">
+          <VUMeter isPlaying={isPlaying} />
+          
           <div className="flex items-center gap-2 text-[11px] text-slate-300 font-mono bg-black/40 px-4 py-2 rounded-xl border border-white/10 shadow-inner backdrop-blur-md">
             {isSaving ? (
               <><Loader2 className="w-3.5 h-3.5 animate-spin text-[#ff007a]" /> Saving...</>
@@ -118,6 +126,13 @@ export default function EditorPage({ params }: EditorPageProps) {
               <><CheckCircle2 className="w-3.5 h-3.5 text-[#00e5ff]" /> {lastSavedAt ? `Saved at ${lastSavedAt}` : 'Saved'}</>
             )}
           </div>
+          <button
+            onClick={() => setIsShortcutsOpen(true)}
+            className="flex items-center gap-1.5 px-3 py-2 text-xs font-bold rounded-xl bg-white/5 hover:bg-white/10 text-white/80 transition-colors border border-white/5"
+            title="Keyboard Shortcuts"
+          >
+            <Keyboard className="w-4 h-4 text-[#00e5ff]" />
+          </button>
           <button
             onClick={() => saveTimeline()}
             className="flex items-center gap-1.5 px-5 py-2 text-xs font-bold rounded-xl aesthetic-button text-white/90"
@@ -136,9 +151,18 @@ export default function EditorPage({ params }: EditorPageProps) {
       </header>
 
       {/* Main Workspace Workspace */}
-      <div className="flex flex-1 overflow-hidden p-3 gap-3">
+      <div 
+        className="flex flex-col flex-1 overflow-hidden p-4 gap-2 relative"
+        onMouseMove={(e) => {
+          if (!isDragging) return;
+          const newHeight = window.innerHeight - e.clientY - 16; // 16px for padding
+          setTimelineHeight(Math.max(100, Math.min(newHeight, window.innerHeight * 0.8)));
+        }}
+        onMouseUp={() => setIsDragging(false)}
+        onMouseLeave={() => setIsDragging(false)}
+      >
         {/* Top Half: Library & Canvas & Inspector */}
-        <div className="flex-1 flex gap-3 min-h-[50%]">
+        <div className="flex-1 flex gap-4 min-h-[100px] overflow-hidden">
           
           {/* Left Sidebar: Assets & Captions & Stickers */}
           <div className="w-80 glass-panel rounded-2xl flex flex-col overflow-hidden shadow-2xl relative group">
@@ -211,23 +235,41 @@ export default function EditorPage({ params }: EditorPageProps) {
           </div>
 
           {/* Right Sidebar: Clip Inspector */}
-          <div className="w-80 glass-panel rounded-2xl flex flex-col overflow-hidden shadow-2xl">
+          <div className="w-80 glass-panel rounded-2xl flex flex-col overflow-hidden shadow-2xl shrink-0">
             <ClipInspector />
           </div>
         </div>
 
+        {/* Resizable Horizontal Divider */}
+        <div 
+          className="h-2 w-full cursor-row-resize flex items-center justify-center opacity-0 hover:opacity-100 transition-opacity z-50 group"
+          onMouseDown={() => setIsDragging(true)}
+        >
+          <div className={`h-[2px] w-32 rounded-full transition-colors ${isDragging ? 'bg-[#ff007a]' : 'bg-white/50 group-hover:bg-[#ff007a]'}`} />
+        </div>
+
         {/* Bottom Half: Timeline */}
-        <div className="h-72 glass-panel rounded-2xl overflow-hidden shadow-2xl border-t border-white/10 shrink-0 relative mt-2">
-           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-brand-500/50 to-transparent" />
+        <div 
+          className="glass-panel rounded-2xl overflow-hidden shadow-2xl shrink-0 relative transition-all duration-75"
+          style={{ height: timelineHeight }}
+        >
+           <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-[#ff007a]/50 to-transparent z-50 pointer-events-none" />
            <Timeline assets={assets} />
         </div>
       </div>
+
+      {/* Shortcuts Modal */}
+      <ShortcutsOverlay 
+        isOpen={isShortcutsOpen} 
+        onClose={() => setIsShortcutsOpen(false)} 
+      />
 
       {/* Export Modal */}
       {isExportOpen && (
         <ExportModal
           isOpen={isExportOpen}
           onClose={() => setIsExportOpen(false)}
+          projectId={projectId}
         />
       )}
     </div>

@@ -6,6 +6,7 @@ import { TimelineToolbar } from '@/components/timeline/TimelineToolbar';
 import { TimelineRuler } from '@/components/timeline/TimelineRuler';
 import { TrackHeader } from '@/components/timeline/TrackHeader';
 import { TrackLane } from '@/components/timeline/TrackLane';
+import { ContextMenu } from '@/components/ui/ContextMenu';
 import { Asset } from '@/types/timeline';
 
 interface TimelineProps {
@@ -15,6 +16,7 @@ interface TimelineProps {
 export const Timeline: React.FC<TimelineProps> = ({ assets = [] }) => {
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const headerContainerRef = useRef<HTMLDivElement | null>(null);
+  const [contextMenu, setContextMenu] = useState<{x: number, y: number, clipId: string} | null>(null);
 
   const {
     timeline,
@@ -148,21 +150,34 @@ export const Timeline: React.FC<TimelineProps> = ({ assets = [] }) => {
               <TrackLane key={track.id} track={track} assets={assets} />
             ))}
 
-            {/* Global Red Playhead Needle */}
+            {/* Global Neon Playhead Needle */}
             <div
               style={{
                 transform: `translateX(${playheadPx}px)`,
               }}
-              className="absolute top-0 bottom-0 pointer-events-none z-40 flex flex-col items-center"
+              className="absolute top-0 bottom-0 pointer-events-none z-50 flex flex-col items-center"
             >
+              {/* Playhead Timecode Tag */}
+              <div className="absolute -top-[34px] bg-[#ff007a] text-white text-[10px] font-black font-mono px-2 py-0.5 rounded shadow-[0_0_15px_rgba(255,0,122,0.6)] whitespace-nowrap z-50 pointer-events-none tracking-widest border border-white/20">
+                {new Date(timeline.playhead_position * 1000).toISOString().substr(11, 11)}
+              </div>
               {/* Playhead Scrubber Handle (Triangle) */}
-              <div className="w-3.5 h-3.5 -mt-8 bg-red-500 clip-triangle shadow-md" />
+              <div className="w-4 h-4 -mt-2 bg-gradient-to-b from-[#ff007a] to-[#ff007a]/80 clip-triangle shadow-[0_0_10px_rgba(255,0,122,0.8)]" />
               {/* Vertical Laser Needle Line */}
-              <div className="w-[1.5px] flex-1 bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.8)]" />
+              <div className="w-[2px] flex-1 bg-gradient-to-b from-[#ff007a] via-[#ff007a]/80 to-transparent shadow-[0_0_15px_rgba(255,0,122,1)]" />
             </div>
           </div>
         </div>
       </div>
+
+      {contextMenu && (
+        <ContextMenu 
+          x={contextMenu.x} 
+          y={contextMenu.y} 
+          clipId={contextMenu.clipId} 
+          onClose={() => setContextMenu(null)} 
+        />
+      )}
     </div>
   );
 };
