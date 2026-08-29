@@ -327,6 +327,28 @@ class FFmpegService:
                     if clip.speed != 1.0 and clip.speed > 0:
                         pts_scale = 1.0 / clip.speed
                         filters.append(f"setpts={pts_scale:.4f}*PTS")
+                        
+                    # Reverse
+                    if getattr(clip, 'reverse', False):
+                        filters.append("reverse")
+                        
+                    # Cropping (Edge masking)
+                    ct = getattr(clip.transform, 'crop_top', 0)
+                    cb = getattr(clip.transform, 'crop_bottom', 0)
+                    cl = getattr(clip.transform, 'crop_left', 0)
+                    cr = getattr(clip.transform, 'crop_right', 0)
+                    if ct > 0 or cb > 0 or cl > 0 or cr > 0:
+                        cw = f"iw*(1-{cl}-{cr})"
+                        ch = f"ih*(1-{ct}-{cb})"
+                        cx = f"iw*{cl}"
+                        cy = f"ih*{ct}"
+                        filters.append(f"crop={cw}:{ch}:{cx}:{cy}")
+                        
+                    # Flip / Mirror
+                    if getattr(clip.transform, 'flip_x', False):
+                        filters.append("hflip")
+                    if getattr(clip.transform, 'flip_y', False):
+                        filters.append("vflip")
                     
                     # Scaling & Transform
                     scale_w = int(target_width * clip.transform.scale_x)
@@ -403,6 +425,10 @@ class FFmpegService:
                             speed /= 0.5
                         if speed != 1.0:
                             a_filters.append(f"atempo={speed:.4f}")
+
+                    # Reverse
+                    if getattr(clip, 'reverse', False):
+                        a_filters.append("areverse")
 
                     # Volume
                     vol = clip.audio.volume

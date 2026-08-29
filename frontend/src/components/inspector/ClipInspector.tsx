@@ -255,28 +255,140 @@ export const ClipInspector: React.FC = () => {
               />
             </div>
 
-            {/* Speed Controls */}
+            {/* Flip Controls */}
             <div className="pt-2 border-t border-surface-border space-y-2">
-              <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1">
-                <Clock className="w-3.5 h-3.5 text-amber-400" />
-                Playback Speed
-              </label>
-              <div className="grid grid-cols-5 gap-1">
-                {[0.5, 0.75, 1.0, 1.5, 2.0].map((spd) => (
-                  <button
-                    key={spd}
-                    onClick={() => updateClip(selectedClip.id, { speed: spd })}
-                    className={`py-1 rounded text-center font-mono text-[11px] font-medium transition-colors ${
-                      selectedClip.speed === spd
-                        ? 'bg-brand-600 text-white font-bold'
-                        : 'bg-surface-raised hover:bg-surface-border text-slate-300'
-                    }`}
-                  >
-                    {spd}x
-                  </button>
-                ))}
+              <label className="text-[11px] font-semibold text-slate-300">Flip / Mirror</label>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => updateClip(selectedClip.id, { transform: { ...selectedClip.transform, flip_x: !selectedClip.transform.flip_x } })}
+                  className={`flex-1 py-1 rounded text-center text-[10px] font-medium transition-colors ${
+                    selectedClip.transform.flip_x ? 'bg-brand-600 text-white' : 'bg-surface-raised hover:bg-surface-border text-slate-300'
+                  }`}
+                >
+                  Flip Horizontal
+                </button>
+                <button
+                  onClick={() => updateClip(selectedClip.id, { transform: { ...selectedClip.transform, flip_y: !selectedClip.transform.flip_y } })}
+                  className={`flex-1 py-1 rounded text-center text-[10px] font-medium transition-colors ${
+                    selectedClip.transform.flip_y ? 'bg-brand-600 text-white' : 'bg-surface-raised hover:bg-surface-border text-slate-300'
+                  }`}
+                >
+                  Flip Vertical
+                </button>
               </div>
             </div>
+
+            {/* Video Cropping */}
+            <div className="pt-2 border-t border-surface-border space-y-2">
+              <label className="text-[11px] font-semibold text-slate-300">Cropping (Edge mask)</label>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-slate-400">Left/Right</span>
+                    <span className="text-[10px] font-mono text-slate-400">
+                      {(((selectedClip.transform.crop_left || 0) + (selectedClip.transform.crop_right || 0)) * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="0.5"
+                    step="0.01"
+                    value={selectedClip.transform.crop_left || 0}
+                    onChange={(e) =>
+                      updateClip(selectedClip.id, {
+                        transform: { ...selectedClip.transform, crop_left: Number(e.target.value), crop_right: Number(e.target.value) },
+                      })
+                    }
+                    className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-brand-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-slate-400">Top/Bottom</span>
+                    <span className="text-[10px] font-mono text-slate-400">
+                      {(((selectedClip.transform.crop_top || 0) + (selectedClip.transform.crop_bottom || 0)) * 100).toFixed(0)}%
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0"
+                    max="0.5"
+                    step="0.01"
+                    value={selectedClip.transform.crop_top || 0}
+                    onChange={(e) =>
+                      updateClip(selectedClip.id, {
+                        transform: { ...selectedClip.transform, crop_top: Number(e.target.value), crop_bottom: Number(e.target.value) },
+                      })
+                    }
+                    className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-brand-500"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Speed Controls */}
+            {selectedClip.type !== 'text' && (
+              <div className="pt-2 border-t border-surface-border space-y-3">
+                <div className="flex items-center justify-between">
+                  <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1">
+                    <Clock className="w-3.5 h-3.5 text-amber-400" />
+                    Advanced Speed Ramping
+                  </label>
+                  <label className="flex items-center gap-1.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={selectedClip.reverse || false}
+                      onChange={(e) => updateClip(selectedClip.id, { reverse: e.target.checked })}
+                      className="accent-brand-500"
+                    />
+                    <span className="text-[10px] text-slate-400 font-semibold">Reverse</span>
+                  </label>
+                </div>
+                
+                <div className="space-y-1">
+                  <div className="flex justify-between">
+                    <span className="text-[10px] text-slate-400">Playback Speed</span>
+                    <span className="font-mono text-amber-400 font-bold text-[11px]">
+                      {selectedClip.speed.toFixed(2)}x
+                    </span>
+                  </div>
+                  <input
+                    type="range"
+                    min="0.1"
+                    max="10.0"
+                    step="0.1"
+                    value={selectedClip.speed}
+                    onChange={(e) => {
+                      const newSpeed = Number(e.target.value);
+                      // Adjust duration mathematically so the timeline clip resizes
+                      const newDuration = selectedClip.duration / (newSpeed / selectedClip.speed);
+                      updateClip(selectedClip.id, { speed: newSpeed, duration: newDuration });
+                    }}
+                    className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-amber-500"
+                  />
+                </div>
+                
+                <div className="grid grid-cols-5 gap-1">
+                  {[0.25, 0.5, 1.0, 2.0, 4.0].map((spd) => (
+                    <button
+                      key={spd}
+                      onClick={() => {
+                        const newDuration = selectedClip.duration / (spd / selectedClip.speed);
+                        updateClip(selectedClip.id, { speed: spd, duration: newDuration });
+                      }}
+                      className={`py-1 rounded text-center font-mono text-[10px] font-medium transition-colors ${
+                        selectedClip.speed === spd
+                          ? 'bg-amber-500 text-slate-950 font-bold'
+                          : 'bg-surface-raised hover:bg-surface-border text-slate-300'
+                      }`}
+                    >
+                      {spd}x
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
 

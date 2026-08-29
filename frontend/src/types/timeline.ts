@@ -10,6 +10,12 @@ export interface TransformConfig {
   rotation: number;   // Degrees (0-360)
   opacity: number;    // 0.0 to 1.0
   blend_mode: string; // 'normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten'
+  flip_x?: boolean;
+  flip_y?: boolean;
+  crop_top?: number;    // 0.0 to 1.0
+  crop_bottom?: number; // 0.0 to 1.0
+  crop_left?: number;   // 0.0 to 1.0
+  crop_right?: number;  // 0.0 to 1.0
 }
 
 export interface FilterConfig {
@@ -80,7 +86,8 @@ export interface Clip {
   duration: number;   // Timeline duration in seconds
   trim_in: number;    // Media start point in seconds
   trim_out: number;   // Media end point in seconds
-  speed: number;      // 0.25 to 4.0
+  speed: number;      // 0.25 to 10.0
+  reverse?: boolean;  // True to play backwards
   transform: TransformConfig;
   filters: FilterConfig;
   text?: TextConfig;
