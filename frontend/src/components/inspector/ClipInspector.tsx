@@ -17,7 +17,7 @@ import {
 } from 'lucide-react';
 
 export const ClipInspector: React.FC = () => {
-  const { timeline, updateClip } = useTimelineStore();
+  const { timeline, updateClip, commitHistory } = useTimelineStore();
   const [activeTab, setActiveTab] = useState<'transform' | 'filters' | 'audio' | 'text' | 'transitions'>('transform');
 
   const selectedClip = timeline.clips.find((c) => timeline.selected_clip_ids.includes(c.id));
@@ -134,7 +134,10 @@ export const ClipInspector: React.FC = () => {
       </div>
 
       {/* Tab Panels */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div 
+        className="flex-1 overflow-y-auto p-4 space-y-4"
+        onPointerDownCapture={() => commitHistory()}
+      >
         {/* --- TRANSFORM TAB --- */}
         {activeTab === 'transform' && (
           <div className="space-y-4">

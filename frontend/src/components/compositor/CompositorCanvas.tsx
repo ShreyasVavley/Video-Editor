@@ -315,9 +315,14 @@ export const CompositorCanvas: React.FC<CompositorProps> = ({
   // --- Canvas Mouse Drag for direct on-screen repositioning ---
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (!selectedClip || !canvasRef.current) return;
+    
+    // Check if we are selecting a new clip on canvas click? Actually canvas drag only moves currently selected clip right now.
     const rect = canvasRef.current.getBoundingClientRect();
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
+
+    // Commit history before drag starts
+    useTimelineStore.getState().commitHistory();
 
     setIsDraggingCanvasClip(true);
     dragStartPos.current = {

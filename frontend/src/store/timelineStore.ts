@@ -53,6 +53,7 @@ interface TimelineStore {
   trimClipOut: (clipId: string, deltaSeconds: number) => void;
 
   // Undo / Redo
+  commitHistory: () => void;
   undo: () => void;
   redo: () => void;
   saveTimeline: () => Promise<void>;
@@ -104,7 +105,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
     set(
       produce((state: TimelineStore) => {
         if (recordHistory) {
-          state.history.past.push(state.timeline);
+          state.history.past.push(JSON.parse(JSON.stringify(state.timeline)));
           state.history.future = [];
           if (state.history.past.length > 30) state.history.past.shift();
         }
@@ -178,7 +179,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
   addTrack: (type, name) => {
     set(
       produce((state: TimelineStore) => {
-        state.history.past.push(state.timeline);
+        state.history.past.push(JSON.parse(JSON.stringify(state.timeline)));
         state.history.future = [];
         const count = state.timeline.tracks.filter((t) => t.type === type).length + 1;
         const newTrack: Track = {
@@ -200,7 +201,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
   deleteTrack: (trackId) => {
     set(
       produce((state: TimelineStore) => {
-        state.history.past.push(state.timeline);
+        state.history.past.push(JSON.parse(JSON.stringify(state.timeline)));
         state.history.future = [];
         state.timeline.tracks = state.timeline.tracks.filter((t) => t.id !== trackId);
         state.timeline.clips = state.timeline.clips.filter((c) => c.track_id !== trackId);
@@ -256,7 +257,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
   addClip: (clip) => {
     set(
       produce((state: TimelineStore) => {
-        state.history.past.push(state.timeline);
+        state.history.past.push(JSON.parse(JSON.stringify(state.timeline)));
         state.history.future = [];
         state.timeline.clips.push(clip);
         state.timeline.selected_clip_ids = [clip.id];
@@ -282,7 +283,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
   deleteClip: (clipId) => {
     set(
       produce((state: TimelineStore) => {
-        state.history.past.push(state.timeline);
+        state.history.past.push(JSON.parse(JSON.stringify(state.timeline)));
         state.history.future = [];
         state.timeline.clips = state.timeline.clips.filter((c) => c.id !== clipId);
         state.timeline.selected_clip_ids = state.timeline.selected_clip_ids.filter((id) => id !== clipId);
@@ -294,7 +295,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
     set(
       produce((state: TimelineStore) => {
         if (state.timeline.selected_clip_ids.length === 0) return;
-        state.history.past.push(state.timeline);
+        state.history.past.push(JSON.parse(JSON.stringify(state.timeline)));
         state.history.future = [];
         const selectedSet = new Set(state.timeline.selected_clip_ids);
         state.timeline.clips = state.timeline.clips.filter((c) => !selectedSet.has(c.id));
@@ -314,7 +315,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
           return;
         }
 
-        state.history.past.push(state.timeline);
+        state.history.past.push(JSON.parse(JSON.stringify(state.timeline)));
         state.history.future = [];
 
         const leftDuration = splitTime - clip.start_time;
@@ -390,12 +391,22 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
     );
   },
 
+  commitHistory: () => {
+    set(
+      produce((state: TimelineStore) => {
+        state.history.past.push(JSON.parse(JSON.stringify(state.timeline)));
+        state.history.future = [];
+        if (state.history.past.length > 50) state.history.past.shift();
+      })
+    );
+  },
+
   undo: () => {
     set(
       produce((state: TimelineStore) => {
         if (state.history.past.length === 0) return;
         const previous = state.history.past.pop()!;
-        state.history.future.push(state.timeline);
+        state.history.future.push(JSON.parse(JSON.stringify(state.timeline)));
         state.timeline = previous;
       })
     );
@@ -406,7 +417,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
       produce((state: TimelineStore) => {
         if (state.history.future.length === 0) return;
         const next = state.history.future.pop()!;
-        state.history.past.push(state.timeline);
+        state.history.past.push(JSON.parse(JSON.stringify(state.timeline)));
         state.timeline = next;
       })
     );

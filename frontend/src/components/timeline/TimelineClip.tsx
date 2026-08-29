@@ -21,6 +21,7 @@ export const TimelineClip: React.FC<ClipProps> = ({ clip, waveform }) => {
     trimClipIn,
     trimClipOut,
     splitClip,
+    commitHistory,
   } = useTimelineStore();
 
   const [isDragging, setIsDragging] = useState(false);
@@ -68,6 +69,7 @@ export const TimelineClip: React.FC<ClipProps> = ({ clip, waveform }) => {
   const handlePointerDownMove = (e: React.PointerEvent<HTMLDivElement>) => {
     if (activeTool === 'razor' || isTrimmingIn || isTrimmingOut) return;
     e.stopPropagation();
+    commitHistory();
     setIsDragging(true);
 
     const startClientX = e.clientX;
@@ -102,6 +104,7 @@ export const TimelineClip: React.FC<ClipProps> = ({ clip, waveform }) => {
   // --- Trim In Handle Drag ---
   const handlePointerDownTrimIn = (e: React.PointerEvent<HTMLDivElement>) => {
     e.stopPropagation();
+    commitHistory();
     setIsTrimmingIn(true);
     const startClientX = e.clientX;
 
@@ -123,6 +126,7 @@ export const TimelineClip: React.FC<ClipProps> = ({ clip, waveform }) => {
   // --- Trim Out Handle Drag ---
   const handlePointerDownTrimOut = (e: React.PointerEvent<HTMLDivElement>) => {
     e.stopPropagation();
+    commitHistory();
     setIsTrimmingOut(true);
     const startClientX = e.clientX;
 
