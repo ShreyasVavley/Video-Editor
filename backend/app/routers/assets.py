@@ -78,6 +78,61 @@ async def list_assets(
         assets=[AssetResponse.model_validate(a) for a in assets],
         total=len(assets)
     )
+from pydantic import BaseModel
+from gtts import gTTS
+import asyncio
+import uuid
+
+class TTSRequest(BaseModel):
+    text: str
+    language: str = "en"
+    accent: str = "com"
+    project_id: Optional[str] = None
+
+@router.post("/tts", response_model=AssetResponse, status_code=status.HTTP_201_CREATED)
+async def generate_tts(
+    request: TTSRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        asset_id = str(uuid.uuid4())
+        safe_filename = f"tts_{asset_id}.mp3"
+        save_path = settings.UPLOADS_DIR / safe_filename
+
+        # Run gTTS in a thread to not block event loop
+        def _generate_audio():
+            tts = gTTS(text=request.text, lang=request.language, tld=request.accent, slow=False)
+            tts.save(str(save_path))
+        
+        await asyncio.to_thread(_generate_audio)
+
+        file_size = save_path.stat().st_size
+        mime_type = "audio/mpeg"
+
+        # Fast probe metadata
+        probe_info = await ffmpeg_service.probe_media(save_path)
+
+        new_asset = Asset(
+            id=asset_id,
+            project_id=request.project_id,
+            user_id=current_user.id,
+            file_name=f"AI_Voice_{request.text[:15]}.mp3",
+            file_path=str(save_path),
+            mime_type=mime_type,
+            file_size_bytes=file_size,
+            duration_seconds=probe_info.get("duration", 0.0),
+            asset_type="audio"
+        )
+
+        db.add(new_asset)
+        await db.commit()
+        await db.refresh(new_asset)
+
+        return AssetResponse.model_validate(new_asset)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"TTS generation failed: {str(e)}")
 
 @router.post("/upload", response_model=AssetResponse, status_code=status.HTTP_201_CREATED)
 async def upload_asset(

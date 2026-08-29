@@ -178,6 +178,60 @@ export const CaptionsStudio: React.FC<CaptionsStudioProps> = ({ assets, onSeekPl
     }
   };
 
+  // --- AI Text-to-Speech (TTS) ---
+  const [ttsText, setTtsText] = useState('');
+  const [ttsLang, setTtsLang] = useState('en');
+  const [ttsAccent, setTtsAccent] = useState('com');
+  const [isGeneratingTTS, setIsGeneratingTTS] = useState(false);
+
+  const handleGenerateTTS = async () => {
+    if (!ttsText.trim()) return;
+    setIsGeneratingTTS(true);
+    try {
+      const res = await fetch('/api/assets/tts', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          text: ttsText,
+          language: ttsLang,
+          accent: ttsAccent,
+          project_id: useTimelineStore.getState().project?.id
+        })
+      });
+      if (res.ok) {
+        const asset = await res.json();
+        const playhead = timeline.playhead_position;
+        let audioTrack = useTimelineStore.getState().timeline.tracks.find((t) => t.type === 'audio');
+        if (!audioTrack) {
+          addTrack('audio', 'Voiceovers');
+          audioTrack = useTimelineStore.getState().timeline.tracks.find((t) => t.type === 'audio');
+        }
+        const trackId = audioTrack ? audioTrack.id : 'track_a1';
+
+        addClip({
+          id: `clip_tts_${Date.now()}`,
+          track_id: trackId,
+          asset_id: asset.id,
+          type: 'audio',
+          name: asset.file_name,
+          start_time: playhead,
+          duration: asset.duration_seconds || 5.0,
+          trim_in: 0,
+          trim_out: asset.duration_seconds || 5.0,
+          speed: 1.0,
+          transform: { x: 0, y: 0, scale_x: 1, scale_y: 1, rotation: 0, opacity: 1, blend_mode: 'normal' },
+          filters: { brightness: 1, contrast: 1, saturation: 1, hue: 0, blur: 0, vignette: 0, sepia: 0, grayscale: 0, invert: 0 },
+          audio: { volume: 1, muted: false, pan: 0, fade_in: 0, fade_out: 0 },
+        });
+        setTtsText('');
+      }
+    } catch (e) {
+      console.error("TTS error:", e);
+    } finally {
+      setIsGeneratingTTS(false);
+    }
+  };
+
   // --- Apply Captions onto Timeline ---
   const handleApplyToTimeline = () => {
     // Ensure Text track exists
@@ -347,7 +401,72 @@ export const CaptionsStudio: React.FC<CaptionsStudioProps> = ({ assets, onSeekPl
           </div>
         </div>
 
-        {/* 2. Caption Styling Presets */}
+        {/* 2. AI Text-to-Speech (TTS) */}
+        <div className="bg-surface-raised border border-surface-border rounded-xl p-3.5 space-y-3">
+          <div className="flex items-center justify-between">
+            <span className="font-semibold text-slate-200 text-xs flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5 text-blue-400" />
+              AI Voiceover (Text-to-Speech)
+            </span>
+          </div>
+
+          <textarea
+            rows={2}
+            value={ttsText}
+            onChange={(e) => setTtsText(e.target.value)}
+            placeholder="Type your script here..."
+            className="w-full bg-surface border border-surface-border rounded-md px-2.5 py-1.5 text-slate-200 text-xs focus:outline-none focus:border-blue-500"
+          />
+
+          <div className="grid grid-cols-2 gap-2">
+            <div className="space-y-1">
+              <label className="text-[10px] text-slate-400 uppercase font-mono">Language</label>
+              <select
+                value={ttsLang}
+                onChange={(e) => setTtsLang(e.target.value)}
+                className="w-full bg-surface border border-surface-border rounded-md px-2.5 py-1.5 text-slate-200 text-[11px] focus:outline-none focus:border-blue-500"
+              >
+                <option value="en">English</option>
+                <option value="es">Spanish</option>
+                <option value="fr">French</option>
+                <option value="de">German</option>
+              </select>
+            </div>
+            <div className="space-y-1">
+              <label className="text-[10px] text-slate-400 uppercase font-mono">Accent</label>
+              <select
+                value={ttsAccent}
+                onChange={(e) => setTtsAccent(e.target.value)}
+                className="w-full bg-surface border border-surface-border rounded-md px-2.5 py-1.5 text-slate-200 text-[11px] focus:outline-none focus:border-blue-500"
+              >
+                <option value="com">United States</option>
+                <option value="co.uk">United Kingdom</option>
+                <option value="com.au">Australia</option>
+                <option value="co.in">India</option>
+              </select>
+            </div>
+          </div>
+
+          <button
+            onClick={handleGenerateTTS}
+            disabled={isGeneratingTTS || !ttsText.trim()}
+            className="w-full py-2 bg-blue-600 hover:bg-blue-500 disabled:opacity-50 text-white rounded-lg font-bold text-xs flex items-center justify-center gap-1.5 shadow-md transition-all active:scale-95"
+          >
+            {isGeneratingTTS ? (
+              <>
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                Generating Voice...
+              </>
+            ) : (
+              <>
+                <FileText className="w-3.5 h-3.5" />
+                Generate Voiceover
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* 3. Caption Styling Presets */}
         <div className="space-y-2">
           <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
             <Palette className="w-3.5 h-3.5 text-brand-400" />
