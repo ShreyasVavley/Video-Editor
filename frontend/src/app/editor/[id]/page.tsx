@@ -88,15 +88,23 @@ export default function EditorPage({ params }: EditorPageProps) {
 
   if (isLoading) {
     return (
-      <div className="h-screen w-screen bg-background flex flex-col items-center justify-center space-y-3">
-        <Loader2 className="w-8 h-8 text-brand-500 animate-spin" />
-        <p className="text-xs text-slate-400 font-mono">Loading Non-Linear Video Workstation...</p>
+      <div className="h-screen w-screen flex items-center justify-center clay-bg">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-[#ff6eb0] to-[#9b6dff] flex items-center justify-center clay-btn clay-btn-primary animate-pulse">
+            <Film className="w-7 h-7 text-white" />
+          </div>
+          <Loader2 className="w-6 h-6 animate-spin text-[#ff6eb0]" />
+          <p className="text-xs text-slate-400 font-mono">Loading Non-Linear Video Workstation...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden text-slate-200 crazy-animated-bg select-none font-sans relative z-0">
+    <div className="flex flex-col h-screen overflow-hidden text-slate-200 clay-bg select-none font-sans relative z-0">
+      <div className="clay-orb-1" />
+      <div className="clay-orb-2" />
+      <div className="clay-orb-3" />
       {/* Top Header Navigation */}
       <header className="h-16 glass-panel border-b border-white/10 flex items-center justify-between px-6 z-50 shrink-0 mx-4 mt-4 shadow-2xl">
         <div className="flex items-center gap-4">
