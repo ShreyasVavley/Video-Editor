@@ -136,18 +136,27 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 select-none">
-      <div className="bg-surface border border-surface-border rounded-xl shadow-2xl w-full max-w-lg overflow-hidden flex flex-col text-slate-200 text-xs animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-2xl flex items-center justify-center p-4 select-none">
+      {/* Glow orbs behind modal */}
+      <div className="absolute w-96 h-96 rounded-full bg-[#7928ca] opacity-20 blur-[120px] pointer-events-none" />
+      <div className="absolute w-64 h-64 rounded-full bg-[#ff007a] opacity-20 blur-[80px] translate-x-48 translate-y-24 pointer-events-none" />
+      
+      <div className="relative w-full max-w-lg overflow-hidden flex flex-col text-slate-200 text-xs glass-panel animate-in fade-in zoom-in-95 duration-200 border border-white/15 shadow-[0_0_50px_rgba(121,40,202,0.4)]">
         {/* Modal Header */}
-        <div className="px-5 py-3.5 bg-surface-raised border-b border-surface-border flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-brand-500" />
-            <h2 className="font-bold text-slate-100 text-sm">Export Video (FFmpeg Core)</h2>
+        <div className="px-6 py-4 border-b border-white/10 flex items-center justify-between bg-black/30">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#ff007a] to-[#7928ca] flex items-center justify-center shadow-[0_0_12px_rgba(255,0,122,0.5)]">
+              <Sparkles className="w-4 h-4 text-white" />
+            </div>
+            <div>
+              <h2 className="font-black text-white text-sm tracking-wide neon-text">RENDER PIPELINE</h2>
+              <p className="text-[10px] text-[#ffb6ff] font-mono">FFmpeg Core v6 // H.264 + AAC</p>
+            </div>
           </div>
           {!isRendering && (
             <button
               onClick={onClose}
-              className="p-1 hover:bg-surface rounded text-slate-400 hover:text-slate-100"
+              className="p-2 hover:bg-white/10 rounded-full text-slate-400 hover:text-white transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
@@ -155,70 +164,68 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
         </div>
 
         {/* Modal Body */}
-        <div className="p-5 space-y-4">
+        <div className="p-6 space-y-4">
           {!isRendering && !downloadUrl && (
             <>
               {/* Preset Selection */}
               <div className="space-y-1.5">
-                <label className="text-[11px] font-semibold text-slate-300">Export Resolution</label>
+                <label className="text-[11px] font-bold text-slate-300 tracking-wider uppercase">Resolution</label>
                 <select
                   value={resolution}
                   onChange={(e) => setResolution(e.target.value as any)}
-                  className="w-full bg-surface-raised border border-surface-border rounded-md px-3 py-2 text-slate-200 text-xs focus:outline-none focus:border-brand-500"
+                  className="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-slate-200 text-xs focus:outline-none focus:border-[#ff007a] transition-colors"
                 >
-                  <option value="1080p">1080p Full HD (1920x1080 - 16:9 Standard)</option>
-                  <option value="4K">4K Ultra HD (3840x2160 - Master Quality)</option>
-                  <option value="720p">720p HD (1280x720 - Fast Preview)</option>
-                  <option value="1080x1920">1080x1920 Vertical (Shorts / Reels / TikTok 9:16)</option>
-                  <option value="1080x1080">1080x1080 Square (Instagram Post 1:1)</option>
-                  <option value="480p">480p SD (854x480 - Lightweight)</option>
+                  <option value="1080p">1080p Full HD (1920×1080)</option>
+                  <option value="4K">4K Ultra HD (3840×2160)</option>
+                  <option value="720p">720p HD (1280×720 – Fast)</option>
+                  <option value="1080x1920">Vertical 9:16 (Shorts / Reels)</option>
+                  <option value="1080x1080">Square 1:1 (Instagram Post)</option>
+                  <option value="480p">480p SD – Lightweight</option>
                 </select>
               </div>
 
               {/* Framerate & Quality */}
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold text-slate-300">Framerate</label>
+                  <label className="text-[11px] font-bold text-slate-300 tracking-wider uppercase">Framerate</label>
                   <select
                     value={fps}
                     onChange={(e) => setFps(Number(e.target.value))}
-                    className="w-full bg-surface-raised border border-surface-border rounded-md px-3 py-2 text-slate-200 text-xs focus:outline-none focus:border-brand-500"
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-slate-200 text-xs focus:outline-none focus:border-[#ff007a] transition-colors"
                   >
-                    <option value={24}>24 FPS (Cinematic)</option>
-                    <option value={30}>30 FPS (Standard)</option>
-                    <option value={60}>60 FPS (Smooth Motion)</option>
+                    <option value={24}>24 FPS · Cinematic</option>
+                    <option value={30}>30 FPS · Standard</option>
+                    <option value={60}>60 FPS · Smooth</option>
                   </select>
                 </div>
 
                 <div className="space-y-1.5">
-                  <label className="text-[11px] font-semibold text-slate-300">Quality Preset</label>
+                  <label className="text-[11px] font-bold text-slate-300 tracking-wider uppercase">Quality</label>
                   <select
                     value={quality}
                     onChange={(e) => setQuality(e.target.value as any)}
-                    className="w-full bg-surface-raised border border-surface-border rounded-md px-3 py-2 text-slate-200 text-xs focus:outline-none focus:border-brand-500"
+                    className="w-full bg-black/50 border border-white/10 rounded-xl px-3 py-2 text-slate-200 text-xs focus:outline-none focus:border-[#ff007a] transition-colors"
                   >
-                    <option value="fast">Fast (Ultrafast preset, crf 28)</option>
-                    <option value="balanced">Balanced (Medium preset, crf 23)</option>
-                    <option value="high">High (Slow preset, crf 18)</option>
+                    <option value="fast">Fast (crf 28)</option>
+                    <option value="balanced">Balanced (crf 23)</option>
+                    <option value="high">High (crf 18)</option>
                   </select>
                 </div>
               </div>
 
               {/* Render Pipeline Summary */}
-              <div className="p-3 bg-surface-raised rounded-md border border-surface-border text-slate-400 space-y-1">
+              <div className="p-3 bg-black/40 rounded-xl border border-white/5 text-slate-400 space-y-1.5 font-mono text-[10px]">
                 <div className="flex justify-between">
-                  <span>Codec:</span>
-                  <span className="font-mono text-slate-200">H.264 (libx264) + AAC (192kbps)</span>
+                  <span className="text-slate-500">Codec</span>
+                  <span className="text-[#00e5ff]">H.264 (libx264) + AAC · 192kbps</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Duration:</span>
-                  <span className="font-mono text-slate-200">
-                    {timeline.duration_seconds.toFixed(1)} seconds
-                  </span>
+                  <span className="text-slate-500">Duration</span>
+                  <span className="text-[#00e5ff]">{timeline.duration_seconds.toFixed(1)}s</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>Clips in composition:</span>
-                  <span className="font-mono text-slate-200">{timeline.clips.length}</span>
+                  <span className="text-slate-500">Clips</span>
+                  <span className="text-[#00e5ff]">{timeline.clips.length} in composition</span>
                 </div>
               </div>
             </>
@@ -228,38 +235,39 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
           {(isRendering || downloadUrl || error) && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="font-semibold text-slate-200 flex items-center gap-2">
-                  {isRendering && <Loader2 className="w-4 h-4 text-brand-500 animate-spin" />}
+                <span className="font-bold text-slate-200 flex items-center gap-2 text-xs">
+                  {isRendering && <Loader2 className="w-4 h-4 text-[#ff007a] animate-spin" />}
                   {downloadUrl && <CheckCircle2 className="w-4 h-4 text-emerald-400" />}
                   {error && <AlertCircle className="w-4 h-4 text-rose-400" />}
                   {statusMessage}
                 </span>
-                <span className="font-mono font-bold text-slate-100">{progress}%</span>
+                <span className="font-mono font-black text-white text-sm">{progress}%</span>
               </div>
 
-              {/* Progress Bar */}
-              <div className="w-full bg-surface-border rounded-full h-2.5 overflow-hidden">
+              {/* Neon Progress Bar */}
+              <div className="w-full bg-white/5 rounded-full h-2 overflow-hidden border border-white/5">
                 <div
                   style={{ width: `${progress}%` }}
-                  className={`h-full transition-all duration-300 ${
+                  className={`h-full transition-all duration-300 rounded-full ${
                     error
-                      ? 'bg-rose-500'
+                      ? 'bg-rose-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]'
                       : downloadUrl
-                      ? 'bg-emerald-500'
-                      : 'bg-brand-500'
+                      ? 'bg-emerald-500 shadow-[0_0_10px_rgba(52,211,153,0.5)]'
+                      : 'bg-gradient-to-r from-[#ff007a] to-[#7928ca] shadow-[0_0_10px_rgba(255,0,122,0.5)]'
                   }`}
                 />
               </div>
 
               {/* Live Log Stream Console */}
-              <div className="bg-black/60 border border-surface-border rounded-md p-2.5 h-28 overflow-y-auto font-mono text-[10px] text-slate-400 space-y-0.5">
-                <div className="text-slate-500 flex items-center gap-1 mb-1">
-                  <Terminal className="w-3 h-3" />
-                  <span>FFmpeg Live Pipeline Log:</span>
+              <div className="bg-black border border-[#00e5ff]/30 rounded-xl p-3 h-32 overflow-y-auto font-mono text-[10px] text-[#00e5ff] space-y-1 shadow-[inset_0_0_20px_rgba(0,229,255,0.1)]">
+                <div className="text-[#00e5ff]/50 flex items-center gap-1 mb-2 border-b border-[#00e5ff]/20 pb-1">
+                  <Terminal className="w-3.5 h-3.5" />
+                  <span className="font-bold tracking-wider">FFMPEG_LIVE_STDOUT //</span>
                 </div>
                 {logs.map((log, idx) => (
-                  <p key={idx} className="leading-tight">
-                    &gt; {log}
+                  <p key={idx} className="leading-tight opacity-90 break-all">
+                    <span className="text-[#ff007a] mr-2">[{new Date().toISOString().substring(14, 19)}]</span>
+                    {log}
                   </p>
                 ))}
               </div>
@@ -268,21 +276,21 @@ export const ExportModal: React.FC<ExportModalProps> = ({ isOpen, onClose }) => 
         </div>
 
         {/* Modal Footer */}
-        <div className="px-5 py-3.5 bg-surface-raised border-t border-surface-border flex items-center justify-end gap-2">
+        <div className="px-6 py-4 bg-black/40 border-t border-white/10 flex items-center justify-end gap-3 rounded-b-2xl">
           {!isRendering && !downloadUrl && (
             <>
               <button
                 onClick={onClose}
-                className="px-3.5 py-1.5 rounded-md hover:bg-surface text-slate-400 hover:text-slate-200"
+                className="px-4 py-2 rounded-xl hover:bg-white/10 text-slate-400 hover:text-white transition-colors text-xs font-bold"
               >
                 Cancel
               </button>
               <button
                 onClick={startRender}
-                className="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-md font-semibold flex items-center gap-1.5 shadow-lg shadow-brand-600/20"
+                className="px-6 py-2 bg-gradient-to-r from-[#ff007a] to-[#7928ca] text-white rounded-xl font-bold flex items-center gap-2 shadow-[0_0_20px_rgba(255,0,122,0.4)] hover:scale-105 transition-transform text-xs"
               >
-                <Sparkles className="w-3.5 h-3.5" />
-                Start Export
+                <Sparkles className="w-4 h-4" />
+                START EXPORT
               </button>
             </>
           )}
