@@ -1,3 +1,4 @@
+import { getApiUrl } from "@/utils/config";
 'use client';
 
 import React from 'react';
@@ -144,7 +145,7 @@ export const TimelineToolbar: React.FC = () => {
           formData.append('project_id', project.id);
 
           try {
-            const res = await fetch('/api/assets/upload', {
+            const res = await fetch(getApiUrl('/api/assets/upload')), {
               method: 'POST',
               body: formData,
             });

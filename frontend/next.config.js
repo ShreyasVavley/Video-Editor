@@ -6,20 +6,11 @@ const backendUrl = process.env.BACKEND_URL || process.env.NEXT_PUBLIC_API_URL ||
 );
 
 const nextConfig = {
-  output: process.env.VERCEL ? undefined : 'standalone',
+  output: 'export',
   reactStrictMode: false,
-  async rewrites() {
-    return [
-      {
-        source: '/api/:path*',
-        destination: `${backendUrl}/api/:path*`,
-      },
-      {
-        source: '/media/:path*',
-        destination: `${backendUrl}/media/:path*`,
-      },
-    ];
-  },
+  images: {
+    unoptimized: true
+  }
 };
 
 module.exports = nextConfig;

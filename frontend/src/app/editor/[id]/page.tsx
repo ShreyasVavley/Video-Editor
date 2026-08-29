@@ -1,3 +1,4 @@
+import { getApiUrl } from "@/utils/config";
 'use client';
 
 import React, { useEffect, useState, use } from 'react';
@@ -49,7 +50,7 @@ export default function EditorPage({ params }: EditorPageProps) {
   const fetchProjectAndAssets = async () => {
     try {
       // 1. Fetch Project
-      const pRes = await fetch(`/api/projects/${projectId}`);
+      const pRes = await fetch(getApiUrl(`/api/projects/${projectId}`)));
       if (pRes.ok) {
         const pData: Project = await pRes.json();
         setProject(pData);
@@ -61,7 +62,7 @@ export default function EditorPage({ params }: EditorPageProps) {
       }
 
       // 2. Fetch Assets
-      const aRes = await fetch(`/api/assets?project_id=${projectId}`);
+      const aRes = await fetch(getApiUrl(`/api/assets?project_id=${projectId}`)));
       if (aRes.ok) {
         const aData = await aRes.json();
         setAssets(aData.assets || []);
@@ -79,7 +80,7 @@ export default function EditorPage({ params }: EditorPageProps) {
 
   const handleDeleteAsset = async (assetId: string) => {
     try {
-      await fetch(`/api/assets/${assetId}`, { method: 'DELETE' });
+      await fetch(getApiUrl(`/api/assets/${assetId}`)), { method: 'DELETE' });
       setAssets((prev) => prev.filter((a) => a.id !== assetId));
     } catch (e) {
       console.error('Failed to delete asset:', e);

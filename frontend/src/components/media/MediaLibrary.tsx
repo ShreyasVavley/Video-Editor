@@ -1,3 +1,4 @@
+import { getApiUrl } from "@/utils/config";
 'use client';
 
 import React, { useState, useRef } from 'react';
@@ -71,7 +72,7 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ({
       }
 
       try {
-        const res = await fetch('/api/assets/upload', {
+        const res = await fetch(getApiUrl('/api/assets/upload')), {
           method: 'POST',
           body: formData,
         });
@@ -185,7 +186,7 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ({
                   <div className="relative aspect-video bg-black/50 flex items-center justify-center overflow-hidden">
                     {isVideo ? (
                       <img
-                        src={`/api/assets/${asset.id}/thumbnail`}
+                        src={getApiUrl(`/api/assets/${asset.id}/thumbnail`)}
                         alt={asset.file_name}
                         className="w-full h-full object-cover"
                         onError={(e) => {
@@ -199,7 +200,7 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ({
                       </div>
                     ) : (
                       <img
-                        src={`/api/assets/${asset.id}/thumbnail`}
+                        src={getApiUrl(`/api/assets/${asset.id}/thumbnail`)}
                         alt={asset.file_name}
                         className="w-full h-full object-cover"
                       />
@@ -232,7 +233,7 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ({
                             if (processingAssetId) return;
                             try {
                               setProcessingAssetId(asset.id);
-                              await fetch(`/api/assets/${asset.id}/remove-background`, { method: 'POST' });
+                              await fetch(getApiUrl(`/api/assets/${asset.id}/remove-background`)), { method: 'POST' });
                             } catch (err) {}
                           }}
                           className={`p-1 rounded transition-all ${

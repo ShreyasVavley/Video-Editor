@@ -1,3 +1,4 @@
+import { getApiUrl } from "@/utils/config";
 import { create } from 'zustand';
 import { produce } from 'immer';
 import { TimelineState, Track, Clip, Project, TrackType, ClipType } from '@/types/timeline';
@@ -428,7 +429,7 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
     if (!project) return;
     set({ isSaving: true });
     try {
-      const res = await fetch(`/api/projects/${project.id}`, {
+      const res = await fetch(getApiUrl(`/api/projects/${project.id}`)), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

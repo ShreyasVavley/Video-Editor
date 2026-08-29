@@ -1,3 +1,4 @@
+import { getApiUrl } from "@/utils/config";
 'use client';
 
 import React, { useEffect, useState } from 'react';
@@ -31,12 +32,12 @@ export default function DashboardPage() {
 
   const fetchProjects = async () => {
     try {
-      const authRes = await fetch('/api/auth/guest', { method: 'POST' });
+      const authRes = await fetch(getApiUrl('/api/auth/guest')), { method: 'POST' });
       if (authRes.ok) {
         const authData = await authRes.json();
         localStorage.setItem('auth_token', authData.access_token);
       }
-      const res = await fetch('/api/projects');
+      const res = await fetch(getApiUrl('/api/projects')));
       if (res.ok) {
         const data = await res.json();
         setProjects(data.projects || []);
@@ -50,7 +51,7 @@ export default function DashboardPage() {
 
   const fetchHealth = async () => {
     try {
-      const res = await fetch('/api/health');
+      const res = await fetch(getApiUrl('/api/health')));
       if (res.ok) setSystemHealth(await res.json());
     } catch (e) {}
   };
@@ -66,7 +67,7 @@ export default function DashboardPage() {
     if (newAspect === '9:16') { width = 1080; height = 1920; }
     else if (newAspect === '1:1') { width = 1080; height = 1080; }
     try {
-      const res = await fetch('/api/projects', {
+      const res = await fetch(getApiUrl('/api/projects')), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ title: newTitle || 'Untitled Project', width, height, fps: 30, duration_seconds: 30.0 }),
@@ -82,7 +83,7 @@ export default function DashboardPage() {
     e.stopPropagation();
     if (!confirm('Delete this project?')) return;
     try {
-      await fetch(`/api/projects/${id}`, { method: 'DELETE' });
+      await fetch(getApiUrl(`/api/projects/${id}`)), { method: 'DELETE' });
       setProjects((prev) => prev.filter((p) => p.id !== id));
     } catch (e) { console.error('Failed to delete:', e); }
   };
@@ -90,7 +91,7 @@ export default function DashboardPage() {
   const handleDuplicateProject = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     try {
-      const res = await fetch(`/api/projects/${id}/duplicate`, { method: 'POST' });
+      const res = await fetch(getApiUrl(`/api/projects/${id}/duplicate`)), { method: 'POST' });
       if (res.ok) fetchProjects();
     } catch (e) { console.error('Failed to duplicate:', e); }
   };
