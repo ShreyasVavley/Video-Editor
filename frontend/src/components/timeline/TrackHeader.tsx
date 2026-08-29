@@ -33,28 +33,24 @@ export const TrackHeader: React.FC<TrackHeaderProps> = ({ track }) => {
   const getTrackIcon = () => {
     switch (track.type) {
       case 'video':
-        return <Video className="w-3.5 h-3.5 text-blue-400" />;
+        return <Video className="w-3.5 h-3.5 text-slate-300" />;
       case 'audio':
-        return <Music className="w-3.5 h-3.5 text-emerald-400" />;
+        return <Music className="w-3.5 h-3.5 text-slate-300" />;
       case 'text':
-        return <Type className="w-3.5 h-3.5 text-amber-400" />;
+        return <Type className="w-3.5 h-3.5 text-slate-300" />;
     }
   };
 
   return (
     <div className="h-16 px-3 py-2 bg-transparent border-b border-r border-white/5 flex items-center justify-between select-none hover:bg-white/5 transition-colors group">
       {/* Left info: Icon & Name */}
-      <div className="flex items-center gap-2 overflow-hidden">
-        <div className={`w-6 h-6 rounded-md flex items-center justify-center shadow-lg ${
-          track.type === 'video' ? 'bg-blue-500/20 text-blue-400' :
-          track.type === 'audio' ? 'bg-emerald-500/20 text-emerald-400' :
-          'bg-amber-500/20 text-amber-400'
-        }`}>
+      <div className="flex items-center gap-3 overflow-hidden">
+        <div className={`w-6 h-6 rounded flex items-center justify-center bg-white/5 border border-white/5`}>
           {getTrackIcon()}
         </div>
         <div className="flex flex-col truncate">
-           <span className="text-xs font-bold text-slate-200 truncate tracking-wide">{track.name}</span>
-           <span className="text-[9px] font-mono text-slate-500 uppercase">{track.type} Track</span>
+           <span className="text-xs font-medium text-white/90 truncate tracking-wide">{track.name}</span>
+           <span className="text-[9px] font-mono text-white/40 uppercase">{track.type}</span>
         </div>
       </div>
 
