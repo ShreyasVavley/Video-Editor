@@ -90,46 +90,46 @@ export default function EditorPage({ params }: EditorPageProps) {
   }
 
   return (
-    <div className="flex flex-col h-screen overflow-hidden text-slate-200 aesthetic-bg select-none font-light">
+    <div className="flex flex-col h-screen overflow-hidden text-slate-200 crazy-animated-bg select-none font-sans relative z-0">
       {/* Top Header Navigation */}
-      <header className="h-14 glass-panel border-b border-white/5 flex items-center justify-between px-4 z-50 shrink-0 mx-3 mt-3 shadow-sm rounded-2xl">
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard" className="p-2 hover:bg-white/5 rounded-full transition-colors group">
-            <ChevronLeft className="w-4 h-4 text-slate-400 group-hover:text-white" />
+      <header className="h-16 glass-panel border-b border-white/10 flex items-center justify-between px-6 z-50 shrink-0 mx-4 mt-4 shadow-2xl">
+        <div className="flex items-center gap-4">
+          <Link href="/dashboard" className="p-2 hover:bg-white/10 rounded-full transition-all hover:scale-110 active:scale-95 group">
+            <ChevronLeft className="w-5 h-5 text-slate-300 group-hover:text-white" />
           </Link>
           <div className="flex items-center gap-3">
-            <div className="w-7 h-7 rounded-md bg-white/10 flex items-center justify-center shadow-inner border border-white/5">
-              <Film className="w-3.5 h-3.5 text-white/80" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-[#ff007a] to-[#7928ca] flex items-center justify-center shadow-[0_0_15px_rgba(255,0,122,0.6)] border border-white/20 hover:rotate-12 transition-transform duration-300 cursor-pointer">
+              <Film className="w-4 h-4 text-white drop-shadow-md" />
             </div>
-            <div className="flex flex-col">
-              <h1 className="font-medium text-sm text-white/90 tracking-wide">{project?.title || 'Loading...'}</h1>
-              <p className="text-[10px] text-slate-400 font-mono mt-[1px]">
+            <div className="flex flex-col justify-center">
+              <h1 className="font-bold text-[15px] text-white tracking-wide neon-text">{project?.title || 'Loading...'}</h1>
+              <p className="text-[10px] text-[#ffb6ff] font-mono mt-[2px] tracking-wider font-bold opacity-90">
                 {aspectRatio} <span className="opacity-50 mx-1">•</span> {project?.fps}fps
               </p>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-2 text-[10px] text-slate-400 mr-2 font-mono">
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 text-[11px] text-slate-300 font-mono bg-black/40 px-4 py-2 rounded-xl border border-white/10 shadow-inner backdrop-blur-md">
             {isSaving ? (
-              <><Loader2 className="w-3 h-3 animate-spin text-slate-300" /> Saving...</>
+              <><Loader2 className="w-3.5 h-3.5 animate-spin text-[#ff007a]" /> Saving...</>
             ) : (
-              <><CheckCircle2 className="w-3 h-3 text-slate-500" /> {lastSavedAt ? `Saved at ${lastSavedAt}` : 'Saved'}</>
+              <><CheckCircle2 className="w-3.5 h-3.5 text-[#00e5ff]" /> {lastSavedAt ? `Saved at ${lastSavedAt}` : 'Saved'}</>
             )}
           </div>
           <button
             onClick={() => saveTimeline()}
-            className="flex items-center gap-1.5 px-4 py-1.5 text-xs font-medium rounded-full aesthetic-button text-white/90"
+            className="flex items-center gap-1.5 px-5 py-2 text-xs font-bold rounded-xl aesthetic-button text-white/90"
           >
-            <Save className="w-3.5 h-3.5 opacity-70" />
+            <Save className="w-4 h-4 opacity-90" />
             Save
           </button>
           <button
             onClick={() => setIsExportOpen(true)}
-            className="flex items-center gap-1.5 px-5 py-1.5 text-xs font-medium rounded-full aesthetic-button-primary text-black"
+            className="flex items-center gap-2 px-6 py-2 text-xs rounded-xl aesthetic-button-primary text-white"
           >
-            <Download className="w-3.5 h-3.5 opacity-80" />
+            <Download className="w-4 h-4" />
             Export
           </button>
         </div>
@@ -143,41 +143,41 @@ export default function EditorPage({ params }: EditorPageProps) {
           {/* Left Sidebar: Assets & Captions & Stickers */}
           <div className="w-80 glass-panel rounded-2xl flex flex-col overflow-hidden shadow-2xl relative group">
             {/* Tab Navigation */}
-            <div className="flex p-1.5 gap-1 border-b border-white/5">
+            <div className="flex p-2 gap-2 border-b border-white/5 bg-black/30">
               <button
                 onClick={() => setActiveLeftTab('media')}
-                className={`flex-1 py-1.5 rounded-xl font-medium text-[11px] flex items-center justify-center gap-1.5 transition-all duration-300 ${
+                className={`flex-1 py-2 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all duration-300 ${
                   activeLeftTab === 'media'
-                    ? 'bg-white/10 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                    ? 'bg-gradient-to-r from-cyan-500/30 to-blue-500/30 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.4)] border border-cyan-500/50 scale-105'
+                    : 'text-slate-400 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <Folder className="w-3.5 h-3.5" />
+                <Folder className="w-4 h-4" />
                 <span>Media</span>
               </button>
 
               <button
                 onClick={() => setActiveLeftTab('captions')}
-                className={`flex-1 py-1.5 rounded-xl font-medium text-[11px] flex items-center justify-center gap-1.5 transition-all duration-300 ${
+                className={`flex-1 py-2 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all duration-300 ${
                   activeLeftTab === 'captions'
-                    ? 'bg-white/10 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                    ? 'bg-gradient-to-r from-amber-500/30 to-orange-500/30 text-amber-300 shadow-[0_0_15px_rgba(245,158,11,0.4)] border border-amber-500/50 scale-105'
+                    : 'text-slate-400 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <Type className="w-3.5 h-3.5" />
+                <Type className="w-4 h-4" />
                 <span>Captions</span>
-                <span className="px-1 py-[1px] rounded bg-white/10 text-[8px] text-white/60 font-medium tracking-wider">AI</span>
+                <span className="px-1.5 py-[2px] rounded bg-white/20 text-[9px] text-white font-black tracking-wider shadow-[0_0_5px_rgba(255,255,255,0.5)]">AI</span>
               </button>
 
               <button
                 onClick={() => setActiveLeftTab('stickers')}
-                className={`flex-1 py-1.5 rounded-xl font-medium text-[11px] flex items-center justify-center gap-1.5 transition-all duration-300 ${
+                className={`flex-1 py-2 rounded-xl font-bold text-[11px] flex items-center justify-center gap-1.5 transition-all duration-300 ${
                   activeLeftTab === 'stickers'
-                    ? 'bg-white/10 text-white shadow-sm'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'
+                    ? 'bg-gradient-to-r from-pink-500/30 to-rose-500/30 text-pink-300 shadow-[0_0_15px_rgba(236,72,153,0.4)] border border-pink-500/50 scale-105'
+                    : 'text-slate-400 hover:text-white hover:bg-white/10'
                 }`}
               >
-                <Smile className="w-3.5 h-3.5" />
+                <Smile className="w-4 h-4" />
                 <span>Stickers</span>
               </button>
             </div>
