@@ -17,6 +17,7 @@ import {
   Type,
   Video,
   Music,
+  Mic,
 } from 'lucide-react';
 
 export const TimelineToolbar: React.FC = () => {
@@ -105,6 +106,89 @@ export const TimelineToolbar: React.FC = () => {
         fade_out: 0,
       },
     });
+  };
+
+  const [isRecording, setIsRecording] = React.useState(false);
+  const mediaRecorderRef = React.useRef<MediaRecorder | null>(null);
+  const chunksRef = React.useRef<Blob[]>([]);
+
+  const handleToggleVoiceover = async () => {
+    if (isRecording) {
+      // Stop recording
+      if (mediaRecorderRef.current) {
+        mediaRecorderRef.current.stop();
+      }
+      setIsRecording(false);
+    } else {
+      // Start recording
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+        const mediaRecorder = new MediaRecorder(stream);
+        mediaRecorderRef.current = mediaRecorder;
+        chunksRef.current = [];
+
+        mediaRecorder.ondataavailable = (e) => {
+          if (e.data.size > 0) chunksRef.current.push(e.data);
+        };
+
+        mediaRecorder.onstop = async () => {
+          const blob = new Blob(chunksRef.current, { type: 'audio/webm' });
+          stream.getTracks().forEach((track) => track.stop());
+
+          // We need the project ID. Fortunately, we can get it from the browser URL or useTimelineStore project.
+          const project = useTimelineStore.getState().project;
+          if (!project) return;
+
+          const formData = new FormData();
+          formData.append('file', blob, `voiceover_${Date.now()}.webm`);
+          formData.append('project_id', project.id);
+
+          try {
+            const res = await fetch('/api/assets/upload', {
+              method: 'POST',
+              body: formData,
+            });
+
+            if (res.ok) {
+              const asset = await res.json();
+              
+              // Automatically add to timeline at playhead
+              const playhead = useTimelineStore.getState().timeline.playhead_position;
+              let audioTrack = useTimelineStore.getState().timeline.tracks.find((t) => t.type === 'audio');
+              if (!audioTrack) {
+                addTrack('audio', 'Voiceover');
+                audioTrack = useTimelineStore.getState().timeline.tracks.find((t) => t.type === 'audio');
+              }
+              const trackId = audioTrack ? audioTrack.id : 'track_a1';
+
+              addClip({
+                id: `clip_vo_${Date.now()}`,
+                track_id: trackId,
+                asset_id: asset.id,
+                type: 'audio',
+                name: 'Voiceover Recording',
+                start_time: playhead,
+                duration: asset.duration_seconds || 5.0,
+                trim_in: 0,
+                trim_out: asset.duration_seconds || 5.0,
+                speed: 1.0,
+                transform: { x: 0, y: 0, scale_x: 1, scale_y: 1, rotation: 0, opacity: 1, blend_mode: 'normal' },
+                filters: { brightness: 1, contrast: 1, saturation: 1, hue: 0, blur: 0, vignette: 0, sepia: 0, grayscale: 0, invert: 0 },
+                audio: { volume: 1, muted: false, pan: 0, fade_in: 0, fade_out: 0 },
+              });
+            }
+          } catch (e) {
+            console.error('Failed to upload voiceover', e);
+          }
+        };
+
+        mediaRecorder.start();
+        setIsRecording(true);
+      } catch (err) {
+        console.error('Microphone access denied or error', err);
+        alert('Could not access microphone.');
+      }
+    }
   };
 
   return (
@@ -196,6 +280,18 @@ export const TimelineToolbar: React.FC = () => {
 
       {/* Center: Add Track / Add Text Generator */}
       <div className="flex items-center gap-2">
+        <button
+          onClick={handleToggleVoiceover}
+          className={`px-2.5 py-1 rounded border font-medium flex items-center gap-1.5 transition-colors ${
+            isRecording
+              ? 'bg-rose-600 border-rose-500 text-white animate-pulse shadow-[0_0_10px_rgba(225,29,72,0.5)]'
+              : 'bg-rose-600/20 hover:bg-rose-600/30 border-rose-500/40 text-rose-300'
+          }`}
+        >
+          <Mic className="w-3.5 h-3.5" />
+          {isRecording ? 'Stop Recording' : 'Record Voiceover'}
+        </button>
+
         <button
           onClick={handleAddTextTitle}
           className="px-2.5 py-1 rounded bg-amber-600/20 hover:bg-amber-600/30 border border-amber-500/40 text-amber-300 font-medium flex items-center gap-1.5 transition-colors"
