@@ -8,6 +8,7 @@ import { CompositorCanvas } from '@/components/compositor/CompositorCanvas';
 import { Timeline } from '@/components/timeline/Timeline';
 import { MediaLibrary } from '@/components/media/MediaLibrary';
 import { CaptionsStudio } from '@/components/captions/CaptionsStudio';
+import { StickersLibrary } from '@/components/stickers/StickersLibrary';
 import { ClipInspector } from '@/components/inspector/ClipInspector';
 import { ExportModal } from '@/components/export/ExportModal';
 import {
@@ -21,6 +22,7 @@ import {
   HardDrive,
   Type,
   Folder,
+  Smile,
 } from 'lucide-react';
 
 interface EditorPageProps {
@@ -36,7 +38,7 @@ export default function EditorPage({ params }: EditorPageProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [aspectRatio, setAspectRatio] = useState<'16:9' | '9:16' | '1:1' | '21:9'>('16:9');
-  const [activeLeftTab, setActiveLeftTab] = useState<'media' | 'captions'>('media');
+  const [activeLeftTab, setActiveLeftTab] = useState<'media' | 'captions' | 'stickers'>('media');
 
   const fetchProjectAndAssets = async () => {
     try {
@@ -184,19 +186,35 @@ export default function EditorPage({ params }: EditorPageProps) {
                 <span>Captions</span>
                 <span className="px-1 py-0.2 rounded bg-amber-500/20 text-[9px] text-amber-300 font-mono">AI</span>
               </button>
+
+              <button
+                onClick={() => setActiveLeftTab('stickers')}
+                className={`flex-1 py-1.5 rounded-md font-semibold text-xs flex items-center justify-center gap-1.5 transition-all ${
+                  activeLeftTab === 'stickers'
+                    ? 'bg-pink-500/10 text-pink-300 border border-pink-500/30 shadow-sm'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                <Smile className="w-3.5 h-3.5 text-pink-400" />
+                <span>Stickers</span>
+              </button>
             </div>
 
             {/* Tab Content */}
             <div className="flex-1 overflow-hidden">
-              {activeLeftTab === 'media' ? (
+              {activeLeftTab === 'media' && (
                 <MediaLibrary
                   projectId={projectId}
                   assets={assets}
                   onUploadSuccess={fetchProjectAndAssets}
                   onDeleteAsset={handleDeleteAsset}
                 />
-              ) : (
+              )}
+              {activeLeftTab === 'captions' && (
                 <CaptionsStudio assets={assets} />
+              )}
+              {activeLeftTab === 'stickers' && (
+                <StickersLibrary />
               )}
             </div>
           </div>

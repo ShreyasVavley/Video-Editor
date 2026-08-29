@@ -134,6 +134,86 @@ async def generate_tts(
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"TTS generation failed: {str(e)}")
 
+import httpx
+import subprocess
+
+class DownloadRequest(BaseModel):
+    url: str
+    project_id: Optional[str] = None
+    name: Optional[str] = None
+
+@router.post("/download", response_model=AssetResponse, status_code=status.HTTP_201_CREATED)
+async def download_asset(
+    request: DownloadRequest,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    try:
+        asset_id = str(uuid.uuid4())
+        
+        ext = ".mp4"
+        lower_url = request.url.lower()
+        if ".gif" in lower_url or "tenor" in lower_url or "giphy" in lower_url:
+            ext = ".gif"
+        elif ".png" in lower_url:
+            ext = ".png"
+        elif ".jpg" in lower_url or ".jpeg" in lower_url:
+            ext = ".jpg"
+            
+        raw_filename = f"raw_{asset_id}{ext}"
+        raw_path = settings.UPLOADS_DIR / raw_filename
+        
+        async with httpx.AsyncClient(follow_redirects=True) as client:
+            async with client.stream('GET', request.url) as response:
+                response.raise_for_status()
+                with open(raw_path, 'wb') as out_file:
+                    async for chunk in response.aiter_bytes():
+                        out_file.write(chunk)
+                        
+        final_path = raw_path
+        mime_type = "video/mp4" if ext == ".mp4" else f"image/{ext[1:]}"
+        
+        if ext == ".gif":
+            webm_filename = f"{asset_id}.webm"
+            webm_path = settings.UPLOADS_DIR / webm_filename
+            cmd = [
+                "ffmpeg", "-y", "-i", str(raw_path),
+                "-c:v", "libvpx-vp9",
+                "-pix_fmt", "yuva420p",
+                str(webm_path)
+            ]
+            await asyncio.to_thread(subprocess.run, cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            final_path = webm_path
+            mime_type = "video/webm"
+            
+        file_size = final_path.stat().st_size
+        probe_info = await ffmpeg_service.probe_media(final_path)
+        
+        asset_type = "video" if mime_type.startswith("video/") else "image"
+
+        new_asset = Asset(
+            id=asset_id,
+            project_id=request.project_id,
+            user_id=current_user.id,
+            file_name=request.name or f"sticker_{asset_id[:4]}",
+            file_path=str(final_path),
+            mime_type=mime_type,
+            file_size_bytes=file_size,
+            duration_seconds=probe_info.get("duration", 0.0),
+            width=probe_info.get("width"),
+            height=probe_info.get("height"),
+            asset_type=asset_type
+        )
+
+        db.add(new_asset)
+        await db.commit()
+        await db.refresh(new_asset)
+
+        return AssetResponse.model_validate(new_asset)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Download failed: {str(e)}")
+
 @router.post("/upload", response_model=AssetResponse, status_code=status.HTTP_201_CREATED)
 async def upload_asset(
     background_tasks: BackgroundTasks,
