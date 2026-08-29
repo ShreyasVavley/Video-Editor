@@ -533,6 +533,97 @@ export const ClipInspector: React.FC = () => {
                 className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-emerald-500"
               />
             </div>
+            {/* Pan */}
+            <div className="space-y-1 pt-2 border-t border-surface-border">
+              <div className="flex justify-between">
+                <label className="text-[10px] text-slate-400">Pan (L/R)</label>
+                <span className="font-mono text-slate-400">
+                  {selectedClip.audio.pan > 0 ? `R ${(selectedClip.audio.pan * 100).toFixed(0)}` : selectedClip.audio.pan < 0 ? `L ${(Math.abs(selectedClip.audio.pan) * 100).toFixed(0)}` : 'Center'}
+                </span>
+              </div>
+              <input
+                type="range"
+                min="-1"
+                max="1"
+                step="0.05"
+                value={selectedClip.audio.pan || 0}
+                onChange={(e) =>
+                  updateClip(selectedClip.id, {
+                    audio: { ...selectedClip.audio, pan: Number(e.target.value) },
+                  })
+                }
+                className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-emerald-500"
+              />
+            </div>
+
+            {/* Pitch */}
+            <div className="space-y-1 pt-2 border-t border-surface-border">
+              <div className="flex justify-between">
+                <label className="text-[10px] text-slate-400">Pitch Shift (Semitones)</label>
+                <span className="font-mono text-slate-400">
+                  {(selectedClip.audio.pitch || 0) > 0 ? `+${selectedClip.audio.pitch}` : (selectedClip.audio.pitch || 0)}
+                </span>
+              </div>
+              <input
+                type="range"
+                min="-12"
+                max="12"
+                step="1"
+                value={selectedClip.audio.pitch || 0}
+                onChange={(e) =>
+                  updateClip(selectedClip.id, {
+                    audio: { ...selectedClip.audio, pitch: Number(e.target.value) },
+                  })
+                }
+                className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-emerald-500"
+              />
+            </div>
+
+            {/* Bass */}
+            <div className="space-y-1">
+              <div className="flex justify-between">
+                <label className="text-[10px] text-slate-400">Bass (Low Shelf)</label>
+                <span className="font-mono text-slate-400">
+                  {(selectedClip.audio.bass || 0) > 0 ? `+${selectedClip.audio.bass} dB` : `${(selectedClip.audio.bass || 0)} dB`}
+                </span>
+              </div>
+              <input
+                type="range"
+                min="-20"
+                max="20"
+                step="1"
+                value={selectedClip.audio.bass || 0}
+                onChange={(e) =>
+                  updateClip(selectedClip.id, {
+                    audio: { ...selectedClip.audio, bass: Number(e.target.value) },
+                  })
+                }
+                className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-emerald-500"
+              />
+            </div>
+
+            {/* Treble */}
+            <div className="space-y-1">
+              <div className="flex justify-between">
+                <label className="text-[10px] text-slate-400">Treble (High Shelf)</label>
+                <span className="font-mono text-slate-400">
+                  {(selectedClip.audio.treble || 0) > 0 ? `+${selectedClip.audio.treble} dB` : `${(selectedClip.audio.treble || 0)} dB`}
+                </span>
+              </div>
+              <input
+                type="range"
+                min="-20"
+                max="20"
+                step="1"
+                value={selectedClip.audio.treble || 0}
+                onChange={(e) =>
+                  updateClip(selectedClip.id, {
+                    audio: { ...selectedClip.audio, treble: Number(e.target.value) },
+                  })
+                }
+                className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-emerald-500"
+              />
+            </div>
           </div>
         )}
 

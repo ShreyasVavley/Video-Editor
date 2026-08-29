@@ -59,6 +59,9 @@ export interface AudioConfig {
   volume: number; // 0.0 to 2.0 (1.0 default)
   muted: boolean;
   pan: number;    // -1.0 to 1.0
+  pitch?: number; // Semitones (-12 to 12)
+  bass?: number;  // dB (-20 to 20)
+  treble?: number; // dB (-20 to 20)
   fade_in: number;
   fade_out: number;
 }

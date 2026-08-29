@@ -401,6 +401,27 @@ class FFmpegService:
                     if vol != 1.0:
                         a_filters.append(f"volume={vol:.2f}")
                         
+                    # Pitch Shift (asetrate + atempo combo)
+                    pitch = getattr(clip.audio, 'pitch', 0)
+                    if pitch != 0:
+                        factor = 2 ** (pitch / 12.0)
+                        a_filters.append(f"asetrate=44100*{factor:.4f},atempo={1.0/factor:.4f}")
+                        
+                    # Bass / Treble EQ
+                    bass = getattr(clip.audio, 'bass', 0)
+                    if bass != 0:
+                        a_filters.append(f"bass=g={bass}")
+                        
+                    treble = getattr(clip.audio, 'treble', 0)
+                    if treble != 0:
+                        a_filters.append(f"treble=g={treble}")
+                        
+                    # Panning
+                    pan = getattr(clip.audio, 'pan', 0)
+                    if pan != 0:
+                        left_mult = 1.0 - max(0.0, float(pan))
+                        right_mult = 1.0 - max(0.0, -float(pan))
+                        a_filters.append(f"pan=stereo|c0={left_mult:.2f}*c0|c1={right_mult:.2f}*c1")
                     # Audio Transitions (Fade)
                     t_in = getattr(clip, 'transition_in', None)
                     if t_in and t_in.type == 'fade_black':
