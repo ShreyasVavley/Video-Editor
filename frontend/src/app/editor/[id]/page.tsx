@@ -115,7 +115,7 @@ export default function EditorPage({ params }: EditorPageProps) {
             {isSaving ? (
               <><Loader2 className="w-3 h-3 animate-spin text-brand-400" /> Saving...</>
             ) : (
-              <><CheckCircle2 className="w-3 h-3 text-emerald-400" /> {lastSavedAt ? `Saved ${lastSavedAt.toLocaleTimeString()}` : 'Saved'}</>
+              <><CheckCircle2 className="w-3 h-3 text-emerald-400" /> {lastSavedAt ? `Saved at ${lastSavedAt}` : 'Saved'}</>
             )}
           </div>
           <button
