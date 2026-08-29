@@ -90,44 +90,14 @@ export default function EditorPage({ params }: EditorPageProps) {
   }
 
   return (
-    <div className="h-screen w-screen bg-background text-slate-100 flex flex-col overflow-hidden select-none">
-      {/* Top Navbar */}
-      <header className="h-12 bg-surface border-b border-surface-border px-4 flex items-center justify-between z-30 shrink-0">
+    <div className="flex flex-col h-screen overflow-hidden text-slate-200 crazy-bg select-none">
+      {/* Top Header Navigation */}
+      <header className="h-14 glass-panel border-b border-white/10 flex items-center justify-between px-4 z-50 shrink-0">
         <div className="flex items-center gap-3">
-          <Link
-            href="/"
-            className="p-1.5 hover:bg-surface-raised rounded-md text-slate-400 hover:text-slate-100 transition-colors flex items-center gap-1 text-xs"
-          >
-            <ChevronLeft className="w-4 h-4" />
-            <span>Dashboard</span>
+          <Link href="/dashboard" className="p-2 hover:bg-white/10 rounded-full transition-colors group">
+            <ChevronLeft className="w-5 h-5 text-slate-400 group-hover:text-white" />
           </Link>
-
-          <div className="h-4 w-[1px] bg-surface-border mx-1" />
-
           <div className="flex items-center gap-2">
-            <Film className="w-4 h-4 text-brand-500" />
-            <input
-              type="text"
-              value={project?.title || 'Untitled Project'}
-              onChange={(e) => {
-                if (project) setProject({ ...project, title: e.target.value });
-              }}
-              onBlur={() => saveTimeline()}
-              className="bg-transparent hover:bg-surface-raised focus:bg-surface-raised border border-transparent hover:border-surface-border focus:border-brand-500 rounded px-2 py-0.5 font-bold text-xs text-slate-100 focus:outline-none transition-colors"
-            />
-          </div>
-        </div>
-
-        {/* Center Autosave Indicator */}
-        <div className="flex items-center gap-2 text-xs text-slate-400">
-          {isSaving ? (
-            <span className="flex items-center gap-1.5 text-amber-400">
-              <Loader2 className="w-3.5 h-3.5 animate-spin" />
-              Saving...
-            </span>
-          ) : (
-            <span className="flex items-center gap-1.5 text-slate-500 font-mono text-[11px]" suppressHydrationWarning>
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
             <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-500 to-pink-500 flex items-center justify-center neon-glow shadow-lg">
               <Film className="w-4 h-4 text-white" />
             </div>
