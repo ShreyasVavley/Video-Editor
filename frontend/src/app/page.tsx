@@ -96,14 +96,14 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen clay-bg text-slate-100 flex flex-col">
+    <div className="min-h-screen clay-bg text-slate-100">
       {/* Clay orbs — fixed so they don't scroll with content */}
       <div className="clay-orb-1" />
       <div className="clay-orb-2" />
       <div className="clay-orb-3" />
 
       {/* Top Navbar */}
-      <header className="relative z-10 h-16 clay-card mx-4 mt-4 px-6 flex items-center justify-between">
+      <header className="relative z-10 clay-card mx-4 mt-4 px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-2xl bg-gradient-to-br from-[#ff6eb0] to-[#9b6dff] flex items-center justify-center clay-btn-primary clay-btn">
             <Film className="w-5 h-5 text-white drop-shadow" />
@@ -132,8 +132,8 @@ export default function DashboardPage() {
         </div>
       </header>
 
-      {/* Main Content */}
-      <main className="relative z-10 flex-1 max-w-7xl w-full mx-auto px-6 py-8 space-y-8">
+      {/* Main Content — block layout so it grows with content and page scrolls */}
+      <main className="relative z-10 max-w-7xl w-full mx-auto px-6 py-8 space-y-8 pb-16">
 
         {/* Hero Banner */}
         <div className="clay-card p-8 rounded-3xl relative overflow-hidden">
