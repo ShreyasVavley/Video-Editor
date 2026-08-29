@@ -269,7 +269,6 @@ export default function EditorPage({ params }: EditorPageProps) {
         <ExportModal
           isOpen={isExportOpen}
           onClose={() => setIsExportOpen(false)}
-          projectId={projectId}
         />
       )}
     </div>
