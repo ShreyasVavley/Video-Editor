@@ -102,9 +102,6 @@ export default function EditorPage({ params }: EditorPageProps) {
 
   return (
     <div className="flex flex-col h-screen overflow-hidden text-slate-200 clay-bg select-none font-sans relative z-0">
-      <div className="clay-orb-1" />
-      <div className="clay-orb-2" />
-      <div className="clay-orb-3" />
       {/* Top Header Navigation */}
       <header className="h-16 glass-panel border-b border-white/10 flex items-center justify-between px-6 z-50 shrink-0 mx-4 mt-4 shadow-2xl">
         <div className="flex items-center gap-4">

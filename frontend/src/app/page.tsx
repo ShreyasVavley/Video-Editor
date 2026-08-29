@@ -96,8 +96,8 @@ export default function DashboardPage() {
   };
 
   return (
-    <div className="min-h-screen clay-bg text-slate-100 flex flex-col overflow-hidden">
-      {/* Clay orbs */}
+    <div className="min-h-screen clay-bg text-slate-100 flex flex-col overflow-y-auto">
+      {/* Clay orbs — fixed so they don't scroll with content */}
       <div className="clay-orb-1" />
       <div className="clay-orb-2" />
       <div className="clay-orb-3" />
