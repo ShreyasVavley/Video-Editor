@@ -19,6 +19,7 @@ import {
   X,
   ChevronRight,
   Star,
+  Download,
 } from 'lucide-react';
 
 export default function DashboardPage() {
@@ -150,9 +151,21 @@ export default function DashboardPage() {
                 Create Something<br />
                 <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#ff6eb0] to-[#9b6dff]">Extraordinary</span>
               </h2>
-              <p className="text-sm text-slate-400 mt-3 max-w-md leading-relaxed">
+              <p className="text-sm text-slate-400 mt-3 max-w-md leading-relaxed mb-5">
                 Multi-track NLE with FFmpeg rendering, AI captions, audio waveforms, keyframe animation, and real-time export.
               </p>
+              <div className="flex items-center gap-4">
+                <a 
+                  href="https://github.com/ShreyasVavley/Video-Editor/releases/latest"
+                  target="_blank"
+                  rel="noreferrer"
+                  className="inline-flex items-center gap-2 px-6 py-3 text-sm font-black rounded-2xl clay-btn clay-btn-primary text-white"
+                >
+                  <Download className="w-5 h-5" />
+                  Download for Windows
+                </a>
+                <span className="text-xs text-slate-500 font-mono">v1.0.0 • Offline App</span>
+              </div>
             </div>
             <div className="hidden lg:flex gap-4">
               {[
