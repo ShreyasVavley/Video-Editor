@@ -153,7 +153,7 @@ export const TimelineClip: React.FC<ClipProps> = ({ clip, waveform }) => {
       onContextMenu={(e) => {
         e.preventDefault();
         e.stopPropagation();
-        setSelectedClip(clip.id);
+        selectClip(clip.id, false);
         // Dispatch a custom event to the timeline to show context menu
         window.dispatchEvent(new CustomEvent('show-timeline-context-menu', {
           detail: { x: e.clientX, y: e.clientY, clipId: clip.id }
