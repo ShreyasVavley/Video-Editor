@@ -208,3 +208,87 @@ async def delete_asset(
     await db.delete(asset)
     await db.commit()
     return None
+
+from app.services.ml_service import remove_image_background, remove_video_background
+from app.routers.ws import manager
+
+@router.post("/{asset_id}/remove-background")
+async def api_remove_background(
+    asset_id: str,
+    background_tasks: BackgroundTasks,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    result = await db.execute(select(Asset).where(Asset.id == asset_id, Asset.user_id == current_user.id))
+    asset = result.scalars().first()
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset not found")
+        
+    is_video = asset.mime_type.startswith("video/")
+    
+    # We will process it in the background to avoid blocking the HTTP request
+    background_tasks.add_task(process_background_removal, asset_id, asset.file_path, is_video, asset.fps, asset.project_id, current_user.id)
+    
+    return {"message": "Background removal started", "asset_id": asset_id}
+
+async def process_background_removal(asset_id: str, file_path: str, is_video: bool, fps: float, project_id: str, user_id: str):
+    try:
+        filename = os.path.basename(file_path)
+        name, _ = os.path.splitext(filename)
+        out_ext = ".webm" if is_video else ".png"
+        out_name = f"{name}_nobg_{uuid.uuid4().hex[:6]}{out_ext}"
+        out_path = str(settings.UPLOADS_DIR / out_name)
+
+        if is_video:
+            def progress_cb(pct):
+                import asyncio
+                # Background tasks execute in the same event loop normally, but this cb runs in a thread
+                async def send_prog():
+                    await manager.broadcast({
+                        "type": "progress",
+                        "progress": pct,
+                        "status": "removing background"
+                    })
+                try:
+                    asyncio.run_coroutine_threadsafe(send_prog(), asyncio.get_running_loop())
+                except Exception:
+                    pass
+
+            await remove_video_background(file_path, out_path, fps or 30.0, progress_cb)
+        else:
+            await remove_image_background(file_path, out_path)
+            
+        # Add new asset to DB
+        async with AsyncSessionLocal() as session:
+            size = os.path.getsize(out_path)
+            mime = "video/webm" if is_video else "image/png"
+            new_asset = Asset(
+                id=str(uuid.uuid4()),
+                project_id=project_id,
+                user_id=user_id,
+                file_name=out_name,
+                file_path=out_path,
+                mime_type=mime,
+                file_size_bytes=size,
+                width=None,
+                height=None,
+                fps=fps if is_video else None
+            )
+            session.add(new_asset)
+            await session.commit()
+            
+            # trigger standard asset processing (proxies, thumbs)
+            await process_asset_in_background(new_asset.id)
+            
+            # notify clients that a new asset is ready
+            await manager.broadcast({
+                "type": "asset_ready",
+                "asset": {
+                    "id": new_asset.id,
+                    "file_name": new_asset.file_name,
+                    "url": f"/api/assets/{new_asset.id}/stream"
+                }
+            })
+            
+    except Exception as e:
+        print(f"Error in background removal: {e}")

@@ -29,7 +29,33 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ({
 }) => {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
+  const [processingAssetId, setProcessingAssetId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  // Poll for the new asset when processing background removal
+  React.useEffect(() => {
+    if (!processingAssetId) return;
+    
+    let interval = setInterval(async () => {
+      // Just trigger a soft refresh of the library
+      onUploadSuccess?.();
+      
+      // Stop polling if we see a _nobg_ asset in the current library list
+      // But we don't have the new asset ID. Just poll for 15 seconds or rely on manual refresh
+      // A simple fix is just to poll 10 times then stop
+    }, 5000);
+    
+    // Stop after 60 seconds
+    const timeout = setTimeout(() => {
+      clearInterval(interval);
+      setProcessingAssetId(null);
+    }, 60000);
+    
+    return () => {
+      clearInterval(interval);
+      clearTimeout(timeout);
+    };
+  }, [processingAssetId, onUploadSuccess]);
 
   const handleFileUpload = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
@@ -197,17 +223,39 @@ export const MediaLibrary: React.FC<MediaLibraryProps> = ({
                       </p>
                     </div>
 
-                    {/* Delete Button */}
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onDeleteAsset?.(asset.id);
-                      }}
-                      className="opacity-0 group-hover:opacity-100 p-1 hover:bg-rose-950/60 rounded text-slate-400 hover:text-rose-400 transition-all"
-                      title="Delete Asset"
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </button>
+                    {/* Actions */}
+                    <div className="flex opacity-0 group-hover:opacity-100 transition-all bg-surface-raised rounded">
+                      {(isVideo || isImage) && (
+                        <button
+                          onClick={async (e) => {
+                            e.stopPropagation();
+                            if (processingAssetId) return;
+                            try {
+                              setProcessingAssetId(asset.id);
+                              await fetch(`/api/assets/${asset.id}/remove-background`, { method: 'POST' });
+                            } catch (err) {}
+                          }}
+                          className={`p-1 rounded transition-all ${
+                            processingAssetId === asset.id
+                              ? 'bg-amber-500/20 text-amber-400 animate-pulse'
+                              : 'hover:bg-brand-900/60 text-slate-400 hover:text-brand-400'
+                          }`}
+                          title="✨ Magic Remove Background"
+                        >
+                          <Sparkles className={`w-3 h-3 ${processingAssetId === asset.id ? 'animate-spin' : ''}`} />
+                        </button>
+                      )}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onDeleteAsset?.(asset.id);
+                        }}
+                        className="p-1 hover:bg-rose-950/60 rounded text-slate-400 hover:text-rose-400 transition-all"
+                        title="Delete Asset"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
