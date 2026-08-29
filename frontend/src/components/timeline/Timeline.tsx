@@ -121,43 +121,11 @@ export const Timeline: React.FC<TimelineProps> = ({ assets = [] }) => {
           </div>
 
           {/* Track Headers (Left) */}
-          {timeline.tracks.map((track) => (
-            <div
-              key={track.id}
-              className={`h-24 border-b border-white/5 flex items-center justify-between px-3 hover:bg-white/5 transition-colors group ${
-                timeline.selected_track_id === track.id ? 'bg-gradient-to-r from-brand-500/20 to-transparent border-l-2 border-l-brand-400' : 'border-l-2 border-l-transparent'
-              }`}
-              onClick={() => selectTrack(track.id)}
-            >
-              <div className="flex items-center gap-2 overflow-hidden">
-                <div className={`w-6 h-6 rounded-md flex items-center justify-center shadow-lg ${
-                  track.type === 'video' ? 'bg-blue-500/20 text-blue-400' :
-                  track.type === 'audio' ? 'bg-emerald-500/20 text-emerald-400' :
-                  'bg-amber-500/20 text-amber-400'
-                }`}>
-                  {track.type === 'video' && <Video className="w-3.5 h-3.5" />}
-                  {track.type === 'audio' && <Music className="w-3.5 h-3.5" />}
-                  {track.type === 'text' && <Type className="w-3.5 h-3.5" />}
-                </div>
-                <div className="flex flex-col truncate">
-                   <span className="text-xs font-bold text-slate-200 truncate tracking-wide">{track.name}</span>
-                   <span className="text-[9px] font-mono text-slate-500 uppercase">{track.type} Track</span>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    toggleTrackVisibility(track.id);
-                  }}
-                  className="p-1 hover:bg-white/10 rounded-md text-slate-400 hover:text-slate-100 transition-all"
-                >
-                  {track.hidden ? <EyeOff className="w-3.5 h-3.5 text-rose-400" /> : <Eye className="w-3.5 h-3.5" />}
-                </button>
-              </div>
-            </div>
-          ))}
+          <div className="flex-1 overflow-hidden">
+            {timeline.tracks.map((track) => (
+              <TrackHeader key={track.id} track={track} />
+            ))}
+          </div>
         </div>
 
         {/* Tracks Area (Right) */}
