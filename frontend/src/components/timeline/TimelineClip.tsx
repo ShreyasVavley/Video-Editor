@@ -154,6 +154,22 @@ export const TimelineClip: React.FC<ClipProps> = ({ clip, waveform }) => {
         isSelected ? 'ring-2 ring-white border-white z-20 brightness-110' : 'z-10'
       }`}
     >
+      {/* Transition In Marker */}
+      {clip.transition_in && clip.transition_in.type !== 'none' && (
+        <div 
+          className="absolute left-0 top-0 bottom-0 bg-gradient-to-r from-emerald-500/60 to-transparent pointer-events-none z-20 border-l-2 border-emerald-400"
+          style={{ width: `${clip.transition_in.duration * zoom}px` }}
+        />
+      )}
+
+      {/* Transition Out Marker */}
+      {clip.transition_out && clip.transition_out.type !== 'none' && (
+        <div 
+          className="absolute right-0 top-0 bottom-0 bg-gradient-to-l from-rose-500/60 to-transparent pointer-events-none z-20 border-r-2 border-rose-400"
+          style={{ width: `${clip.transition_out.duration * zoom}px` }}
+        />
+      )}
+
       {/* Left Trim Handle */}
       <div
         onPointerDown={handlePointerDownTrimIn}

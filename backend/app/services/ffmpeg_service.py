@@ -318,6 +318,15 @@ class FFmpegService:
                     if clip.transform.opacity < 1.0:
                         filters.append(f"format=yuva420p,colorchannelmixer=aa={clip.transform.opacity:.2f}")
 
+                    # Video Transitions (Fade)
+                    t_in = getattr(clip, 'transition_in', None)
+                    if t_in and t_in.type == 'fade_black':
+                        filters.append(f"fade=t=in:st=0:d={t_in.duration:.3f}")
+                        
+                    t_out = getattr(clip, 'transition_out', None)
+                    if t_out and t_out.type == 'fade_black':
+                        filters.append(f"fade=t=out:st={dur - t_out.duration:.3f}:d={t_out.duration:.3f}")
+
                     filter_chains.append(f"{v_in}{','.join(filters)}{v_processed}")
 
                     # Overlay onto canvas
@@ -362,6 +371,15 @@ class FFmpegService:
                     vol = clip.audio.volume
                     if vol != 1.0:
                         a_filters.append(f"volume={vol:.2f}")
+                        
+                    # Audio Transitions (Fade)
+                    t_in = getattr(clip, 'transition_in', None)
+                    if t_in and t_in.type == 'fade_black':
+                        a_filters.append(f"afade=t=in:st=0:d={t_in.duration:.3f}")
+                        
+                    t_out = getattr(clip, 'transition_out', None)
+                    if t_out and t_out.type == 'fade_black':
+                        a_filters.append(f"afade=t=out:st={dur - t_out.duration:.3f}:d={t_out.duration:.3f}")
 
                     # Delay to place on timeline
                     delay_ms = int(start_t * 1000)

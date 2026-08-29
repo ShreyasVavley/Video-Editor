@@ -128,7 +128,27 @@ export const CompositorCanvas: React.FC<CompositorProps> = ({
           ctx.rotate((clip.transform.rotation * Math.PI) / 180);
         }
         ctx.scale(clip.transform.scale_x, clip.transform.scale_y);
-        ctx.globalAlpha = Math.max(0, Math.min(1, clip.transform.opacity));
+        
+        let computedOpacity = clip.transform.opacity;
+        
+        // Transition IN
+        if (clip.transition_in && clip.transition_in.type === 'fade_black') {
+          const inDur = clip.transition_in.duration;
+          if (clipOffset < inDur) {
+            computedOpacity *= (clipOffset / inDur);
+          }
+        }
+        
+        // Transition OUT
+        if (clip.transition_out && clip.transition_out.type === 'fade_black') {
+          const outDur = clip.transition_out.duration;
+          const timeRemaining = clip.duration - clipOffset;
+          if (timeRemaining < outDur && timeRemaining > 0) {
+            computedOpacity *= (timeRemaining / outDur);
+          }
+        }
+        
+        ctx.globalAlpha = Math.max(0, Math.min(1, computedOpacity));
 
         // 2. CSS Color Filters
         const f = clip.filters;

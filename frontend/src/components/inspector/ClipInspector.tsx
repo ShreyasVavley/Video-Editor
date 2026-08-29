@@ -18,7 +18,7 @@ import {
 
 export const ClipInspector: React.FC = () => {
   const { timeline, updateClip } = useTimelineStore();
-  const [activeTab, setActiveTab] = useState<'transform' | 'filters' | 'audio' | 'text'>('transform');
+  const [activeTab, setActiveTab] = useState<'transform' | 'filters' | 'audio' | 'text' | 'transitions'>('transform');
 
   const selectedClip = timeline.clips.find((c) => timeline.selected_clip_ids.includes(c.id));
 
@@ -67,55 +67,67 @@ export const ClipInspector: React.FC = () => {
       </div>
 
       {/* Tabs */}
-      <div className="flex border-b border-surface-border bg-surface text-slate-400">
+      <div className="flex border-b border-surface-border bg-surface text-slate-400 overflow-x-auto custom-scrollbar">
         <button
           onClick={() => setActiveTab('transform')}
-          className={`flex-1 py-2 flex items-center justify-center gap-1 font-medium transition-colors ${
+          className={`flex-1 py-2 px-2 flex items-center justify-center gap-1 font-medium transition-colors ${
             activeTab === 'transform'
               ? 'text-brand-400 border-b-2 border-brand-500 bg-surface-raised'
               : 'hover:text-slate-200'
           }`}
         >
-          <Move className="w-3.5 h-3.5" />
+          <Move className="w-3.5 h-3.5 shrink-0" />
           Transform
         </button>
 
         {isText && (
           <button
             onClick={() => setActiveTab('text')}
-            className={`flex-1 py-2 flex items-center justify-center gap-1 font-medium transition-colors ${
+            className={`flex-1 py-2 px-2 flex items-center justify-center gap-1 font-medium transition-colors ${
               activeTab === 'text'
                 ? 'text-brand-400 border-b-2 border-brand-500 bg-surface-raised'
                 : 'hover:text-slate-200'
             }`}
           >
-            <Type className="w-3.5 h-3.5" />
+            <Type className="w-3.5 h-3.5 shrink-0" />
             Text
           </button>
         )}
 
         <button
           onClick={() => setActiveTab('filters')}
-          className={`flex-1 py-2 flex items-center justify-center gap-1 font-medium transition-colors ${
+          className={`flex-1 py-2 px-2 flex items-center justify-center gap-1 font-medium transition-colors ${
             activeTab === 'filters'
               ? 'text-brand-400 border-b-2 border-brand-500 bg-surface-raised'
               : 'hover:text-slate-200'
           }`}
         >
-          <Palette className="w-3.5 h-3.5" />
+          <Palette className="w-3.5 h-3.5 shrink-0" />
           Filters
+        </button>
+
+        <button
+          onClick={() => setActiveTab('transitions')}
+          className={`flex-1 py-2 px-2 flex items-center justify-center gap-1 font-medium transition-colors ${
+            activeTab === 'transitions'
+              ? 'text-brand-400 border-b-2 border-brand-500 bg-surface-raised'
+              : 'hover:text-slate-200'
+          }`}
+        >
+          <Sparkles className="w-3.5 h-3.5 shrink-0" />
+          Transitions
         </button>
 
         {selectedClip.type !== 'text' && (
           <button
             onClick={() => setActiveTab('audio')}
-            className={`flex-1 py-2 flex items-center justify-center gap-1 font-medium transition-colors ${
+            className={`flex-1 py-2 px-2 flex items-center justify-center gap-1 font-medium transition-colors ${
               activeTab === 'audio'
                 ? 'text-brand-400 border-b-2 border-brand-500 bg-surface-raised'
                 : 'hover:text-slate-200'
             }`}
           >
-            <Volume2 className="w-3.5 h-3.5" />
+            <Volume2 className="w-3.5 h-3.5 shrink-0" />
             Audio
           </button>
         )}
@@ -465,6 +477,107 @@ export const ClipInspector: React.FC = () => {
                 }
                 className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-emerald-500"
               />
+            </div>
+          </div>
+        )}
+
+        {/* --- TRANSITIONS TAB --- */}
+        {activeTab === 'transitions' && (
+          <div className="space-y-6">
+            {/* Transition IN */}
+            <div className="space-y-3">
+              <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                Transition In (Start)
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-[10px] text-slate-500 font-mono">Type</span>
+                  <select
+                    value={selectedClip.transition_in?.type || 'none'}
+                    onChange={(e) =>
+                      updateClip(selectedClip.id, {
+                        transition_in: {
+                          type: e.target.value as any,
+                          duration: selectedClip.transition_in?.duration || 1.0,
+                        },
+                      })
+                    }
+                    className="w-full mt-1 bg-surface-raised border border-surface-border rounded p-1.5 text-slate-200 text-[11px] focus:outline-none focus:border-brand-500"
+                  >
+                    <option value="none">None</option>
+                    <option value="fade_black">Fade In</option>
+                  </select>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 font-mono">Duration (s)</span>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    max="10"
+                    value={selectedClip.transition_in?.duration || 1.0}
+                    onChange={(e) =>
+                      updateClip(selectedClip.id, {
+                        transition_in: {
+                          type: selectedClip.transition_in?.type || 'fade_black',
+                          duration: parseFloat(e.target.value) || 1.0,
+                        },
+                      })
+                    }
+                    disabled={!selectedClip.transition_in || selectedClip.transition_in.type === 'none'}
+                    className="w-full mt-1 bg-surface-raised border border-surface-border rounded p-1.5 text-slate-200 text-[11px] focus:outline-none focus:border-brand-500 disabled:opacity-50"
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* Transition OUT */}
+            <div className="space-y-3 pt-4 border-t border-surface-border">
+              <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-rose-500"></span>
+                Transition Out (End)
+              </label>
+              <div className="grid grid-cols-2 gap-2">
+                <div>
+                  <span className="text-[10px] text-slate-500 font-mono">Type</span>
+                  <select
+                    value={selectedClip.transition_out?.type || 'none'}
+                    onChange={(e) =>
+                      updateClip(selectedClip.id, {
+                        transition_out: {
+                          type: e.target.value as any,
+                          duration: selectedClip.transition_out?.duration || 1.0,
+                        },
+                      })
+                    }
+                    className="w-full mt-1 bg-surface-raised border border-surface-border rounded p-1.5 text-slate-200 text-[11px] focus:outline-none focus:border-brand-500"
+                  >
+                    <option value="none">None</option>
+                    <option value="fade_black">Fade Out</option>
+                  </select>
+                </div>
+                <div>
+                  <span className="text-[10px] text-slate-500 font-mono">Duration (s)</span>
+                  <input
+                    type="number"
+                    step="0.1"
+                    min="0.1"
+                    max="10"
+                    value={selectedClip.transition_out?.duration || 1.0}
+                    onChange={(e) =>
+                      updateClip(selectedClip.id, {
+                        transition_out: {
+                          type: selectedClip.transition_out?.type || 'fade_black',
+                          duration: parseFloat(e.target.value) || 1.0,
+                        },
+                      })
+                    }
+                    disabled={!selectedClip.transition_out || selectedClip.transition_out.type === 'none'}
+                    className="w-full mt-1 bg-surface-raised border border-surface-border rounded p-1.5 text-slate-200 text-[11px] focus:outline-none focus:border-brand-500 disabled:opacity-50"
+                  />
+                </div>
+              </div>
             </div>
           </div>
         )}
