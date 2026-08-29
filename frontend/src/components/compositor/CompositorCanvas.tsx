@@ -210,7 +210,68 @@ export const CompositorCanvas: React.FC<CompositorProps> = ({
               dw = targetHeight * aspect;
             }
 
-            ctx.drawImage(videoEl, -dw / 2, -dh / 2, dw, dh);
+            if (f.chroma_key_enabled && f.chroma_key_color) {
+              const hex = f.chroma_key_color.replace('#', '');
+              const targetR = parseInt(hex.substring(0, 2), 16) || 0;
+              const targetG = parseInt(hex.substring(2, 4), 16) || 255;
+              const targetB = parseInt(hex.substring(4, 6), 16) || 0;
+              const sim = f.chroma_key_similarity || 0.3;
+              const blend = f.chroma_key_blend || 0.1;
+
+              // Re-use an offscreen canvas attached to the window for performance
+              let offCanvas = (window as any)._chromaCanvas as HTMLCanvasElement;
+              if (!offCanvas) {
+                offCanvas = document.createElement('canvas');
+                (window as any)._chromaCanvas = offCanvas;
+              }
+              
+              // We round the dimensions to integers to avoid getImageData errors
+              const drawW = Math.floor(dw);
+              const drawH = Math.floor(dh);
+              
+              if (offCanvas.width !== drawW) offCanvas.width = drawW;
+              if (offCanvas.height !== drawH) offCanvas.height = drawH;
+              
+              const offCtx = offCanvas.getContext('2d', { willReadFrequently: true });
+              if (offCtx && drawW > 0 && drawH > 0) {
+                try {
+                  offCtx.clearRect(0, 0, drawW, drawH);
+                  offCtx.drawImage(videoEl, 0, 0, drawW, drawH);
+                  const imgData = offCtx.getImageData(0, 0, drawW, drawH);
+                  const data = imgData.data;
+
+                  const maxDist = 441.67; // sqrt(255^2 * 3)
+                  const simDist = sim * maxDist;
+                  const blendDist = blend * maxDist;
+
+                  for (let i = 0; i < data.length; i += 4) {
+                    const r = data[i];
+                    const g = data[i + 1];
+                    const b = data[i + 2];
+
+                    // Euclidean distance in RGB space
+                    const dist = Math.sqrt(
+                      Math.pow(r - targetR, 2) + Math.pow(g - targetG, 2) + Math.pow(b - targetB, 2)
+                    );
+
+                    if (dist < simDist) {
+                      data[i + 3] = 0;
+                    } else if (dist < simDist + blendDist && blendDist > 0) {
+                      data[i + 3] = data[i + 3] * ((dist - simDist) / blendDist);
+                    }
+                  }
+                  offCtx.putImageData(imgData, 0, 0);
+                  ctx.drawImage(offCanvas, -dw / 2, -dh / 2, dw, dh);
+                } catch (e) {
+                  // Fallback if tainted canvas (CORS) or other error
+                  ctx.drawImage(videoEl, -dw / 2, -dh / 2, dw, dh);
+                }
+              } else {
+                ctx.drawImage(videoEl, -dw / 2, -dh / 2, dw, dh);
+              }
+            } else {
+              ctx.drawImage(videoEl, -dw / 2, -dh / 2, dw, dh);
+            }
           } else {
             // Placeholder while loading
             ctx.fillStyle = '#1e222b';

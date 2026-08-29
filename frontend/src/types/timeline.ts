@@ -22,6 +22,10 @@ export interface FilterConfig {
   sepia: number;      // 0.0 to 1.0
   grayscale: number;  // 0.0 to 1.0
   invert: number;     // 0.0 to 1.0
+  chroma_key_enabled?: boolean;
+  chroma_key_color?: string; // hex
+  chroma_key_similarity?: number; // 0.01 to 1.0
+  chroma_key_blend?: number; // 0.0 to 1.0
 }
 
 export type TransitionType =

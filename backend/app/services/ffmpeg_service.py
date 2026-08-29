@@ -343,6 +343,14 @@ class FFmpegService:
                     if f.grayscale > 0:
                         filters.append(f"hue=s={1.0 - f.grayscale:.2f}")
 
+                    # Chroma Key (Green Screen)
+                    chroma_enabled = getattr(f, 'chroma_key_enabled', False)
+                    if chroma_enabled:
+                        c_color = getattr(f, 'chroma_key_color', '#00ff00').replace('#', '0x')
+                        c_sim = getattr(f, 'chroma_key_similarity', 0.3)
+                        c_blend = getattr(f, 'chroma_key_blend', 0.1)
+                        filters.append(f"format=yuva420p,colorkey=color={c_color}:similarity={c_sim:.3f}:blend={c_blend:.3f}")
+
                     # Alpha / Opacity
                     if clip.transform.opacity < 1.0:
                         filters.append(f"format=yuva420p,colorchannelmixer=aa={clip.transform.opacity:.2f}")

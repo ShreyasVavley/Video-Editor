@@ -506,6 +506,88 @@ export const ClipInspector: React.FC = () => {
                 className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-brand-500"
               />
             </div>
+
+            {/* Chroma Key / Green Screen */}
+            <div className="pt-4 border-t border-surface-border space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                  <div className="w-2.5 h-2.5 rounded-sm bg-green-500" />
+                  Chroma Key
+                </label>
+                <input
+                  type="checkbox"
+                  checked={selectedClip.filters.chroma_key_enabled || false}
+                  onChange={(e) =>
+                    updateClip(selectedClip.id, {
+                      filters: { ...selectedClip.filters, chroma_key_enabled: e.target.checked },
+                    })
+                  }
+                  className="accent-brand-500 cursor-pointer"
+                />
+              </div>
+
+              {selectedClip.filters.chroma_key_enabled && (
+                <div className="space-y-3 p-2 bg-surface-raised border border-surface-border rounded-md">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-slate-400">Key Color</span>
+                    <input
+                      type="color"
+                      value={selectedClip.filters.chroma_key_color || '#00ff00'}
+                      onChange={(e) =>
+                        updateClip(selectedClip.id, {
+                          filters: { ...selectedClip.filters, chroma_key_color: e.target.value },
+                        })
+                      }
+                      className="w-16 h-6 bg-transparent cursor-pointer rounded"
+                    />
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-[10px] text-slate-400">Similarity</span>
+                      <span className="font-mono text-slate-400">
+                        {((selectedClip.filters.chroma_key_similarity || 0.3) * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.01"
+                      max="1.0"
+                      step="0.01"
+                      value={selectedClip.filters.chroma_key_similarity || 0.3}
+                      onChange={(e) =>
+                        updateClip(selectedClip.id, {
+                          filters: { ...selectedClip.filters, chroma_key_similarity: Number(e.target.value) },
+                        })
+                      }
+                      className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-brand-500"
+                    />
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-[10px] text-slate-400">Blend (Edge Smoothness)</span>
+                      <span className="font-mono text-slate-400">
+                        {((selectedClip.filters.chroma_key_blend || 0.1) * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <input
+                      type="range"
+                      min="0.0"
+                      max="1.0"
+                      step="0.01"
+                      value={selectedClip.filters.chroma_key_blend || 0.1}
+                      onChange={(e) =>
+                        updateClip(selectedClip.id, {
+                          filters: { ...selectedClip.filters, chroma_key_blend: Number(e.target.value) },
+                        })
+                      }
+                      className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-brand-500"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
 
