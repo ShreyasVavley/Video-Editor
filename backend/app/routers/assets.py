@@ -375,7 +375,6 @@ async def delete_asset(
     return None
 
 from app.services.ml_service import remove_image_background, remove_video_background
-from app.routers.ws import manager
 
 @router.post("/{asset_id}/remove-background")
 async def api_remove_background(
@@ -406,18 +405,7 @@ async def process_background_removal(asset_id: str, file_path: str, is_video: bo
 
         if is_video:
             def progress_cb(pct):
-                import asyncio
-                # Background tasks execute in the same event loop normally, but this cb runs in a thread
-                async def send_prog():
-                    await manager.broadcast({
-                        "type": "progress",
-                        "progress": pct,
-                        "status": "removing background"
-                    })
-                try:
-                    asyncio.run_coroutine_threadsafe(send_prog(), asyncio.get_running_loop())
-                except Exception:
-                    pass
+                pass # WebSocket progress for AI background removal disabled to fix deploy
 
             await remove_video_background(file_path, out_path, fps or 30.0, progress_cb)
         else:
