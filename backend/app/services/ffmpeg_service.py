@@ -390,12 +390,26 @@ class FFmpegService:
 
                     # Overlay onto canvas
                     next_canvas = f"[canvas_v{layer_idx}]"
-                    x_offset = int(clip.transform.x * target_width)
-                    y_offset = int(clip.transform.y * target_height)
                     
+                    is_anim = getattr(clip.transform, 'is_animated', False)
+                    if is_anim:
+                        e_x = getattr(clip.transform, 'end_x', clip.transform.x)
+                        e_y = getattr(clip.transform, 'end_y', clip.transform.y)
+                        start_px_x = int(clip.transform.x * target_width)
+                        start_px_y = int(clip.transform.y * target_height)
+                        end_px_x = int(e_x * target_width)
+                        end_px_y = int(e_y * target_height)
+                        
+                        # t is global time. clip time is (t - start_t). progress is (t - start_t) / dur
+                        x_expr = f"{start_px_x}+({end_px_x}-{start_px_x})*min(1.0,max(0.0,(t-{start_t:.3f})/{dur:.3f}))"
+                        y_expr = f"{start_px_y}+({end_px_y}-{start_px_y})*min(1.0,max(0.0,(t-{start_t:.3f})/{dur:.3f}))"
+                    else:
+                        x_expr = f"{int(clip.transform.x * target_width)}"
+                        y_expr = f"{int(clip.transform.y * target_height)}"
+
                     overlay_str = (
                         f"{current_canvas}{v_processed}overlay="
-                        f"x={x_offset}:y={y_offset}:"
+                        f"x='{x_expr}':y='{y_expr}':"
                         f"enable='between(t,{start_t:.3f},{end_t:.3f})':"
                         f"eof_action=pass"
                         f"{next_canvas}"

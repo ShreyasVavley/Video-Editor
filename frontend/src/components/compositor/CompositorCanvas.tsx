@@ -120,8 +120,28 @@ export const CompositorCanvas: React.FC<CompositorProps> = ({
         ctx.save();
 
         // 1. Transform Matrix (Position, Scale, Rotation, Opacity)
-        const centerX = targetWidth / 2 + clip.transform.x * targetWidth;
-        const centerY = targetHeight / 2 + clip.transform.y * targetHeight;
+        let renderX = clip.transform.x;
+        let renderY = clip.transform.y;
+        let renderScaleX = clip.transform.scale_x;
+        let renderScaleY = clip.transform.scale_y;
+
+        if (clip.transform.is_animated) {
+           const progress = Math.min(1.0, Math.max(0.0, clipOffset / clip.duration));
+           
+           if (clip.transform.end_x !== undefined) {
+             renderX = clip.transform.x + (clip.transform.end_x - clip.transform.x) * progress;
+           }
+           if (clip.transform.end_y !== undefined) {
+             renderY = clip.transform.y + (clip.transform.end_y - clip.transform.y) * progress;
+           }
+           if (clip.transform.end_scale !== undefined) {
+             renderScaleX = clip.transform.scale_x + (clip.transform.end_scale - clip.transform.scale_x) * progress;
+             renderScaleY = clip.transform.scale_y + (clip.transform.end_scale - clip.transform.scale_y) * progress;
+           }
+        }
+
+        const centerX = targetWidth / 2 + renderX * targetWidth;
+        const centerY = targetHeight / 2 + renderY * targetHeight;
 
         let extraY = 0;
         let displayContent = clip.text?.content || '';
@@ -144,7 +164,7 @@ export const CompositorCanvas: React.FC<CompositorProps> = ({
         if (clip.transform.rotation !== 0) {
           ctx.rotate((clip.transform.rotation * Math.PI) / 180);
         }
-        ctx.scale(clip.transform.scale_x, clip.transform.scale_y);
+        ctx.scale(renderScaleX, renderScaleY);
         
         let computedOpacity = clip.transform.opacity;
         

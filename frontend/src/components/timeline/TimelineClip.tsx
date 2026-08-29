@@ -184,8 +184,19 @@ export const TimelineClip: React.FC<ClipProps> = ({ clip, waveform }) => {
       </div>
 
       {/* Clip Body Content & Waveform */}
-      <div className="flex-1 px-3.5 flex flex-col justify-center h-full overflow-hidden pointer-events-none">
-        <div className="flex items-center gap-1.5 overflow-hidden">
+      <div 
+        className="flex-1 px-3.5 flex flex-col justify-center h-full overflow-hidden pointer-events-none relative"
+        style={{
+          backgroundImage: (clip.type === 'audio' || (clip.type === 'video' && !clip.audio?.muted && clip.asset_id)) 
+            ? `url(/api/assets/${clip.asset_id}/waveform)` 
+            : undefined,
+          backgroundSize: '100% 60%',
+          backgroundRepeat: 'no-repeat',
+          backgroundPosition: 'bottom',
+          backgroundBlendMode: 'screen'
+        }}
+      >
+        <div className="flex items-center gap-1.5 overflow-hidden z-10">
           {activeTool === 'razor' && <Scissors className="w-3 h-3 text-red-300 animate-pulse" />}
           <span className="text-xs font-bold text-white truncate drop-shadow">{clip.name}</span>
           {clip.speed !== 1 && (
@@ -195,22 +206,9 @@ export const TimelineClip: React.FC<ClipProps> = ({ clip, waveform }) => {
           )}
         </div>
 
-        <div className="flex items-center gap-2 text-[10px] text-white/80 font-mono">
+        <div className="flex items-center gap-2 text-[10px] text-white/80 font-mono z-10">
           <span>{clip.duration.toFixed(1)}s</span>
         </div>
-
-        {/* Audio Waveform Canvas Visualizer */}
-        {(clip.type === 'audio' || (clip.type === 'video' && waveform)) && waveform && (
-          <div className="w-full h-3 flex items-end gap-[1px] mt-0.5 opacity-60">
-            {waveform.map((peak, idx) => (
-              <div
-                key={idx}
-                style={{ height: `${Math.max(15, peak * 100)}%` }}
-                className="flex-1 bg-white rounded-t-[0.5px]"
-              />
-            ))}
-          </div>
-        )}
       </div>
 
       {/* Right Trim Handle */}

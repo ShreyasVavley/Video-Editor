@@ -61,6 +61,36 @@ async def process_asset_in_background(asset_id: str):
 
         await db.commit()
 
+@router.get("/{asset_id}/waveform")
+async def get_asset_waveform(
+    asset_id: str,
+    db: AsyncSession = Depends(get_db)
+):
+    result = await db.execute(select(Asset).where(Asset.id == asset_id))
+    asset = result.scalars().first()
+    if not asset:
+        raise HTTPException(status_code=404, detail="Asset not found")
+
+    waveform_path = settings.UPLOADS_DIR / f"{asset_id}_waveform.png"
+    if not waveform_path.exists():
+        # Generate waveform
+        try:
+            cmd = [
+                "ffmpeg", "-y", "-i", asset.file_path,
+                "-filter_complex", "aformat=channel_layouts=mono,compand,showwavespic=s=600x80:colors=#f43f5e",
+                "-frames:v", "1",
+                str(waveform_path)
+            ]
+            import subprocess
+            await asyncio.to_thread(subprocess.run, cmd, check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        except Exception:
+            raise HTTPException(status_code=500, detail="Failed to generate waveform")
+
+    return FileResponse(
+        path=str(waveform_path),
+        media_type="image/png"
+    )
+
 @router.get("", response_model=AssetListResponse)
 async def list_assets(
     project_id: Optional[str] = None,

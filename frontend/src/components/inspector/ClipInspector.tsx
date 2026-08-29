@@ -232,6 +232,76 @@ export const ClipInspector: React.FC = () => {
               />
             </div>
 
+            {/* Keyframe Animation (Pan & Zoom) */}
+            <div className="pt-2 border-t border-surface-border space-y-3">
+              <div className="flex items-center justify-between">
+                <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                  <Video className="w-3.5 h-3.5 text-blue-400" />
+                  Pan & Zoom (Ken Burns)
+                </label>
+                <input
+                  type="checkbox"
+                  checked={selectedClip.transform.is_animated || false}
+                  onChange={(e) => {
+                    const checked = e.target.checked;
+                    updateClip(selectedClip.id, {
+                      transform: { 
+                        ...selectedClip.transform, 
+                        is_animated: checked,
+                        end_x: checked ? selectedClip.transform.x : undefined,
+                        end_y: checked ? selectedClip.transform.y : undefined,
+                        end_scale: checked ? selectedClip.transform.scale_x : undefined,
+                      },
+                    });
+                  }}
+                  className="accent-brand-500 cursor-pointer"
+                />
+              </div>
+
+              {selectedClip.transform.is_animated && (
+                <div className="space-y-3 p-2 bg-surface-raised border border-surface-border rounded-md">
+                  <div className="space-y-2">
+                    <label className="text-[10px] text-slate-400 uppercase font-mono">End Position</label>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div>
+                        <span className="text-[9px] text-slate-500 font-mono">X Offset</span>
+                        <input
+                          type="range" min="-0.8" max="0.8" step="0.01"
+                          value={selectedClip.transform.end_x ?? selectedClip.transform.x}
+                          onChange={(e) => updateClip(selectedClip.id, { transform: { ...selectedClip.transform, end_x: Number(e.target.value) } })}
+                          className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-blue-500 mt-1"
+                        />
+                      </div>
+                      <div>
+                        <span className="text-[9px] text-slate-500 font-mono">Y Offset</span>
+                        <input
+                          type="range" min="-0.8" max="0.8" step="0.01"
+                          value={selectedClip.transform.end_y ?? selectedClip.transform.y}
+                          onChange={(e) => updateClip(selectedClip.id, { transform: { ...selectedClip.transform, end_y: Number(e.target.value) } })}
+                          className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-blue-500 mt-1"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-1">
+                    <div className="flex justify-between">
+                      <span className="text-[10px] text-slate-400 uppercase font-mono">End Scale</span>
+                      <span className="font-mono text-slate-400 text-[10px]">
+                        {((selectedClip.transform.end_scale ?? selectedClip.transform.scale_x) * 100).toFixed(0)}%
+                      </span>
+                    </div>
+                    <input
+                      type="range" min="0.2" max="3.0" step="0.05"
+                      value={selectedClip.transform.end_scale ?? selectedClip.transform.scale_x}
+                      onChange={(e) => updateClip(selectedClip.id, { transform: { ...selectedClip.transform, end_scale: Number(e.target.value) } })}
+                      className="w-full h-1 bg-surface-border rounded-lg appearance-none cursor-pointer accent-blue-500"
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
             {/* Opacity */}
             <div className="space-y-1">
               <div className="flex justify-between">

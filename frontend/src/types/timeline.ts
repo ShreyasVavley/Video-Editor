@@ -7,6 +7,13 @@ export interface TransformConfig {
   y: number;
   scale_x: number;    // 1.0 = 100%
   scale_y: number;
+  
+  // Keyframe Animation (Pan & Zoom / Ken Burns)
+  is_animated?: boolean;
+  end_x?: number;
+  end_y?: number;
+  end_scale?: number;
+  
   rotation: number;   // Degrees (0-360)
   opacity: number;    // 0.0 to 1.0
   blend_mode: string; // 'normal', 'multiply', 'screen', 'overlay', 'darken', 'lighten'
