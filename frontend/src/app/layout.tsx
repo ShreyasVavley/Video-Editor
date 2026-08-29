@@ -12,9 +12,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark h-full" suppressHydrationWarning>
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className="h-full antialiased bg-background text-slate-100 flex flex-col"
+        className="antialiased bg-background text-slate-100"
         suppressHydrationWarning
       >
         {children}
