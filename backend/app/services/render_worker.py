@@ -140,7 +140,8 @@ class RenderWorkerQueue:
                 output_file_path=output_file_path,
                 progress_callback=progress_callback,
                 output_res=job.output_resolution or "1080p",
-                target_fps=project.fps or 30
+                target_fps=getattr(job, 'fps', project.fps or 30),
+                quality=getattr(job, 'quality', 'balanced')
             )
 
             # Finalize DB state

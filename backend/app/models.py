@@ -82,6 +82,8 @@ class RenderJob(Base):
     status = Column(String(50), nullable=False, default="QUEUED")  # QUEUED, PROCESSING, COMPLETED, FAILED
     progress_percentage = Column(Integer, default=0)
     output_resolution = Column(String(50), default="1080p")
+    fps = Column(Integer, default=30)
+    quality = Column(String(50), default="balanced")
     output_file_path = Column(String(512), nullable=True)
     error_log = Column(Text, nullable=True)
     created_at = Column(DateTime(timezone=True), default=lambda: datetime.now(timezone.utc))

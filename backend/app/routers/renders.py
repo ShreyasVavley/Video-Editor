@@ -35,7 +35,9 @@ async def create_render_job(
         project_id=project.id,
         status="QUEUED",
         progress_percentage=0,
-        output_resolution=job_data.output_resolution
+        output_resolution=job_data.output_resolution,
+        fps=job_data.fps,
+        quality=job_data.quality
     )
     db.add(new_job)
     await db.commit()
