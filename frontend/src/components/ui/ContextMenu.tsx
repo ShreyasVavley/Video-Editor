@@ -31,7 +31,7 @@ export const ContextMenu: React.FC<ContextMenuProps> = ({ x, y, clipId, onClose 
       <div className="py-1">
         <button 
           onClick={() => {
-            splitClip(timeline.playhead_position);
+            splitClip(clipId, timeline.playhead_position);
             onClose();
           }}
           className="w-full px-4 py-2 flex items-center gap-3 hover:bg-[#ff007a]/20 text-slate-300 hover:text-white transition-colors text-xs font-bold"
