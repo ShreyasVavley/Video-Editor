@@ -14,7 +14,6 @@ from app.schemas.asset import AssetResponse, AssetListResponse
 from app.utils.security import get_current_user
 from app.utils.range_stream import range_stream_response
 from app.services.ffmpeg_service import ffmpeg_service
-from app.routers.ws import manager
 from app.config import settings
 
 router = APIRouter(prefix="/assets", tags=["Media Assets"])
@@ -434,15 +433,7 @@ async def process_background_removal(asset_id: str, file_path: str, is_video: bo
             # trigger standard asset processing (proxies, thumbs)
             await process_asset_in_background(new_asset.id)
             
-            # notify clients that a new asset is ready
-            await manager.broadcast({
-                "type": "asset_ready",
-                "asset": {
-                    "id": new_asset.id,
-                    "file_name": new_asset.file_name,
-                    "url": f"/api/assets/{new_asset.id}/stream"
-                }
-            })
+            # Asset is ready; the frontend should poll or refresh the library
             
     except Exception as e:
         print(f"Error in background removal: {e}")
