@@ -169,12 +169,15 @@ class FFmpegService:
         if not stdout_bytes:
             return [0.0] * num_peaks
 
-        # Parse 16-bit signed PCM integers
-        sample_count = len(stdout_bytes) // 2
+        # Parse 16-bit signed PCM integers using array to prevent OOM
+        # struct.unpack creates a massive tuple of Python ints which explodes memory
+        import array
+        samples = array.array('h', stdout_bytes)
+        
+        sample_count = len(samples)
         if sample_count == 0:
             return [0.0] * num_peaks
 
-        samples = struct.unpack(f"<{sample_count}h", stdout_bytes)
         bucket_size = max(1, sample_count // num_peaks)
 
         peaks = []
