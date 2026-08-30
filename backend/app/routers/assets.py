@@ -14,6 +14,7 @@ from app.schemas.asset import AssetResponse, AssetListResponse
 from app.utils.security import get_current_user
 from app.utils.range_stream import range_stream_response
 from app.services.ffmpeg_service import ffmpeg_service
+from app.routers.ws import manager
 from app.config import settings
 
 router = APIRouter(prefix="/assets", tags=["Media Assets"])
@@ -233,7 +234,7 @@ async def download_asset(
             duration_seconds=probe_info.get("duration", 0.0),
             width=probe_info.get("width"),
             height=probe_info.get("height"),
-            asset_type=asset_type
+            fps=probe_info.get("fps")
         )
 
         db.add(new_asset)

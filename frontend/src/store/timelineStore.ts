@@ -90,12 +90,16 @@ export const useTimelineStore = create<TimelineStore>((set, get) => ({
   lastSavedAt: null,
 
   setProject: (project) => {
+    // If timeline_state is an empty object (new project), use initialTimeline
+    const hasTimeline = project.timeline_state && Object.keys(project.timeline_state).length > 0;
+    const baseTimeline = hasTimeline ? project.timeline_state : initialTimeline;
+    
     set({
       project,
       timeline: {
-        ...project.timeline_state,
-        zoom_level: project.timeline_state.zoom_level || 60.0,
-        snap_enabled: project.timeline_state.snap_enabled ?? true,
+        ...baseTimeline,
+        zoom_level: baseTimeline.zoom_level || 60.0,
+        snap_enabled: baseTimeline.snap_enabled ?? true,
       },
       history: { past: [], future: [] },
     });
