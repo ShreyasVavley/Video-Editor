@@ -301,6 +301,88 @@ export const CompositorCanvas: React.FC<CompositorProps> = ({
             ctx.textAlign = 'center';
             ctx.fillText(`Loading: ${clip.name}`, 0, 0);
           }
+        } else if (clip.type === 'image' && clip.asset_id) {
+          const imgSrc = `/api/assets/${clip.asset_id}/stream`;
+          let imgEl = (window as any)._imageCache?.[clip.asset_id];
+          if (!imgEl) {
+            if (!(window as any)._imageCache) (window as any)._imageCache = {};
+            imgEl = new Image();
+            imgEl.crossOrigin = 'anonymous';
+            imgEl.src = imgSrc;
+            (window as any)._imageCache[clip.asset_id] = imgEl;
+          }
+
+          if (imgEl.complete && imgEl.naturalWidth) {
+            const vw = imgEl.naturalWidth || targetWidth;
+            const vh = imgEl.naturalHeight || targetHeight;
+            const aspect = vw / vh;
+            const targetAspect = targetWidth / targetHeight;
+
+            let dw = targetWidth;
+            let dh = targetHeight;
+            if (aspect > targetAspect) {
+              dh = targetWidth / aspect;
+            } else {
+              dw = targetHeight * aspect;
+            }
+            
+            // Allow chroma key for images (like stickers)
+            if (f.chroma_key_enabled && f.chroma_key_color) {
+              const hex = f.chroma_key_color.replace('#', '');
+              const targetR = parseInt(hex.substring(0, 2), 16) || 0;
+              const targetG = parseInt(hex.substring(2, 4), 16) || 255;
+              const targetB = parseInt(hex.substring(4, 6), 16) || 0;
+              const sim = f.chroma_key_similarity || 0.3;
+              const blend = f.chroma_key_blend || 0.1;
+
+              let offCanvas = (window as any)._chromaCanvas as HTMLCanvasElement;
+              if (!offCanvas) {
+                offCanvas = document.createElement('canvas');
+                (window as any)._chromaCanvas = offCanvas;
+              }
+              const drawW = Math.floor(dw);
+              const drawH = Math.floor(dh);
+              
+              if (drawW > 0 && drawH > 0) {
+                offCanvas.width = drawW;
+                offCanvas.height = drawH;
+                const offCtx = offCanvas.getContext('2d', { willReadFrequently: true });
+                if (offCtx) {
+                  offCtx.clearRect(0, 0, drawW, drawH);
+                  offCtx.drawImage(imgEl, 0, 0, drawW, drawH);
+                  try {
+                    const imgData = offCtx.getImageData(0, 0, drawW, drawH);
+                    const data = imgData.data;
+                    const simDist = sim * 255;
+                    const blendDist = blend * 255;
+
+                    for (let i = 0; i < data.length; i += 4) {
+                      const r = data[i];
+                      const g = data[i + 1];
+                      const b = data[i + 2];
+                      const dist = Math.sqrt(Math.pow(r - targetR, 2) + Math.pow(g - targetG, 2) + Math.pow(b - targetB, 2));
+                      if (dist < simDist) {
+                        data[i + 3] = 0;
+                      } else if (dist < simDist + blendDist && blendDist > 0) {
+                        data[i + 3] = data[i + 3] * ((dist - simDist) / blendDist);
+                      }
+                    }
+                    offCtx.putImageData(imgData, 0, 0);
+                    ctx.drawImage(offCanvas, -dw / 2, -dh / 2, dw, dh);
+                  } catch (e) {
+                    ctx.drawImage(imgEl, -dw / 2, -dh / 2, dw, dh);
+                  }
+                }
+              } else {
+                 ctx.drawImage(imgEl, -dw / 2, -dh / 2, dw, dh);
+              }
+            } else {
+              ctx.drawImage(imgEl, -dw / 2, -dh / 2, dw, dh);
+            }
+          } else {
+            ctx.fillStyle = '#1e222b';
+            ctx.fillRect(-targetWidth / 4, -targetHeight / 4, targetWidth / 2, targetHeight / 2);
+          }
         } else if (clip.type === 'text' && clip.text) {
           const txt = clip.text;
           ctx.font = `bold ${txt.font_size}px ${txt.font_family || 'sans-serif'}`;
