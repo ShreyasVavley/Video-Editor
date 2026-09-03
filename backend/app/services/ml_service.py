@@ -4,7 +4,6 @@ import tempfile
 import shutil
 from pathlib import Path
 
-import rembg
 from app.config import settings
 
 # Global rembg session initialized lazily to save startup time
@@ -15,6 +14,7 @@ _ml_semaphore = asyncio.Semaphore(1)
 def get_rembg_session():
     global _rembg_session
     if _rembg_session is None:
+        import rembg
         # u2netp is a highly optimized, lightweight model (~4MB) suitable for free-tier hosting
         _rembg_session = rembg.new_session("u2netp")
     return _rembg_session
@@ -24,6 +24,7 @@ async def remove_image_background(input_path: str, output_path: str):
     Removes background from an image.
     """
     def process():
+        import rembg
         session = get_rembg_session()
         with open(input_path, 'rb') as i:
             input_data = i.read()
@@ -69,6 +70,7 @@ async def remove_video_background(input_path: str, output_path: str, fps: float,
 
             # 2. Process frames
             def process_frame(frame_name):
+                import rembg
                 in_f = os.path.join(frames_in_dir, frame_name)
                 out_f = os.path.join(frames_out_dir, frame_name.replace('.jpg', '.png'))
                 session = get_rembg_session()
